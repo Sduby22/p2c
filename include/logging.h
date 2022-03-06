@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <utility>
 
 namespace logging {
@@ -40,9 +41,12 @@ public:
   }
 
 private:
+  inline static std::unordered_map<std::string, std::shared_ptr<Logger>> _global_logger_map;
+  inline static LEVEL _global_level;
   std::shared_ptr<spdlog::logger> _logger;
   std::optional<LEVEL> _level;
   friend void setGlobalLevel(LEVEL level);
+  friend std::shared_ptr<Logger> getLogger(const std::string &name);
 };
 
 void setGlobalLevel(LEVEL level);
