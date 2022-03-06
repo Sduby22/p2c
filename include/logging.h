@@ -13,7 +13,7 @@ enum class LEVEL { DEBUG = 1, INFO, WARN, ERROR, CRITICAL };
 
 class Logger {
 public:
-  Logger(const std::string &name) {
+  Logger(const std::string &name) : _level(std::nullopt) {
     _logger = spdlog::stderr_color_mt(name);
     // [Name] level: msg
     _logger->set_pattern("[%n] %^%l%$: %v");
@@ -37,11 +37,15 @@ public:
 
   void setLevel(LEVEL level) {
     _level = level;
-    _logger->set_level((spdlog::level::level_enum)(int)level);
+    _setLevel(level);
   }
 
 private:
-  inline static std::unordered_map<std::string, std::shared_ptr<Logger>> _global_logger_map;
+  void _setLevel(LEVEL level) {
+    _logger->set_level((spdlog::level::level_enum)(int)level);
+  }
+  inline static std::unordered_map<std::string, std::shared_ptr<Logger>>
+      _global_logger_map;
   inline static LEVEL _global_level;
   std::shared_ptr<spdlog::logger> _logger;
   std::optional<LEVEL> _level;

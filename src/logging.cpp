@@ -1,6 +1,4 @@
 #include "logging.h"
-#include <map>
-#include <utility>
 
 namespace logging {
 
@@ -8,7 +6,7 @@ std::shared_ptr<Logger> getLogger(const std::string &name) {
   auto it = Logger::_global_logger_map.find(name);
   if (it == Logger::_global_logger_map.end()) {
     auto ptr = std::make_shared<Logger>(name);
-    ptr->setLevel(Logger::_global_level);
+    ptr->_setLevel(Logger::_global_level);
     Logger::_global_logger_map.emplace(name, ptr);
     return ptr;
   } else {
@@ -22,7 +20,7 @@ void setGlobalLevel(LEVEL level) {
     auto logger = pair.second;
     if (logger->_level.has_value())
       continue;
-    logger->setLevel(level);
+    logger->_setLevel(level);
   }
 }
 
