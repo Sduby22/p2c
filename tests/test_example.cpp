@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include "catch2/catch.hpp"
 #include <cmath>
 #include <string>
 
@@ -8,7 +8,5 @@ TEST_CASE("Negative can't be sqrted.") {
 }
 
 TEST_CASE("Should return helloworld.") {
-  REQUIRE([]() -> std::string {
-    return "helloworld";
-  }() == "helloworld");
+  REQUIRE([]() -> std::string { return "helloworld"; }() == "helloworld");
 }
