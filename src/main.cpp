@@ -1,5 +1,7 @@
 #include "cxxopts.hpp"
 #include "logging.h"
+#include "spdlog/common.h"
+#include "spdlog/spdlog.h"
 #include <cstdio>
 #include <string>
 
@@ -28,14 +30,14 @@ void parse(int argc, char *argv[]) {
 
     // set log level
     if (result.count("debug"))
-      logging::setGlobalLevel(logging::LEVEL::DEBUG);
+      logging::setGlobalLevel(logging::LEVEL::debug);
     else if (result.count("verbose"))
-      logging::setGlobalLevel(logging::LEVEL::INFO);
+      logging::setGlobalLevel(logging::LEVEL::info);
     else
-      logging::setGlobalLevel(logging::LEVEL::WARN);
+      logging::setGlobalLevel(logging::LEVEL::warn);
 
     if (result.count("input") == 0) {
-      logger->critical("no input file");
+      logger.critical("no input file");
     }
   } catch (const cxxopts::OptionException &e) {
     cout << opts.help();
@@ -46,10 +48,10 @@ int main(int argc, char *argv[]) {
   parse(argc, argv);
 
   for (int i = 0; i != 3; i++) {
-    logger->debug("test debug log {}", i);
-    logger->info("test info log {}", i);
-    logger->warn("test warn log {}", i);
-    logger->error("test error log {}", i);
+    logger.debug("test debug log {}", i);
+    logger.info("test info log {}", i);
+    logger.warn("test warn log {}", i);
+    logger.error("test error log {}", i);
   }
 
   return 0;

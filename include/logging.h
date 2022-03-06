@@ -1,3 +1,4 @@
+#include "spdlog/common.h"
 #include "spdlog/pattern_formatter.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/spdlog.h"
@@ -9,7 +10,7 @@
 
 namespace logging {
 
-enum class LEVEL { DEBUG = 1, INFO, WARN, ERROR, CRITICAL };
+using LEVEL = spdlog::level::level_enum;
 
 class Logger {
 public:
@@ -35,24 +36,12 @@ public:
     _logger->critical(std::forward<Args>(args)...);
   }
 
-  void setLevel(LEVEL level) {
-    _level = level;
-    _setLevel(level);
-  }
+  void setLevel(LEVEL level) { _logger->set_level(level); }
 
 private:
-  void _setLevel(LEVEL level) {
-    _logger->set_level((spdlog::level::level_enum)(int)level);
-  }
-  inline static std::unordered_map<std::string, std::shared_ptr<Logger>>
-      _global_logger_map;
-  inline static LEVEL _global_level;
   std::shared_ptr<spdlog::logger> _logger;
-  std::optional<LEVEL> _level;
-  friend void setGlobalLevel(LEVEL level);
-  friend std::shared_ptr<Logger> getLogger(const std::string &name);
 };
 
-void setGlobalLevel(LEVEL level);
-std::shared_ptr<Logger> getLogger(const std::string &name);
+inline void setGlobalLevel(LEVEL level) { spdlog::set_level(level); }
+inline Logger getLogger(const std::string &name) { return Logger(name); }
 } // namespace logging

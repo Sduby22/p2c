@@ -8,13 +8,9 @@ add_subdirectory(lib/spdlog-1.9.2)
 add_subdirectory(lib/Catch2-2.13.8)
 add_subdirectory(lib/cxxopts-3.0.0)
 
-add_library(logging src/logging.cpp)
-target_include_directories(logging PUBLIC include)
-target_link_libraries(logging PUBLIC spdlog::spdlog)
-
 add_executable(main src/main.cpp)
 target_include_directories(main PUBLIC include)
-target_link_libraries(main PUBLIC logging cxxopts::cxxopts)
+target_link_libraries(main PUBLIC spdlog::spdlog cxxopts::cxxopts)
 
 # ======== CTest =========
 option(BUILD_TESTING OFF)
