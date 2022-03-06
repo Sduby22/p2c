@@ -14,7 +14,7 @@ enum class LEVEL { DEBUG = 1, INFO, WARN, ERROR, CRITICAL };
 class Logger {
 public:
   Logger(const std::string &name) {
-    _logger = spdlog::stderr_color_mt(name);
+    _logger = spdlog::stderr_color_st(name);
     // [Name] level: msg
     _logger->set_pattern("[%n] %^%l%$: %v");
   };
