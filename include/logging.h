@@ -12,13 +12,22 @@ namespace logging {
 
 using LEVEL = spdlog::level::level_enum;
 
+namespace detail {
+
+class _patternInit {
+public:
+  _patternInit(const std::string &pattern) : _pattern(pattern) {
+    spdlog::set_pattern(_pattern);
+  }
+
+private:
+  std::string _pattern;
+};
+
+} // namespace detail
 class Logger {
 public:
-  Logger(const std::string &name) {
-    _logger = spdlog::stderr_color_st(name);
-    // [Name] level: msg
-    _logger->set_pattern("[%n] %^%l%$: %v");
-  };
+  Logger(const std::string &name) { _logger = spdlog::stderr_color_st(name); };
   ~Logger() = default;
   template <typename... Args> void debug(Args &&...args) {
     _logger->debug(std::forward<Args>(args)...);
@@ -40,6 +49,7 @@ public:
 
 private:
   std::shared_ptr<spdlog::logger> _logger;
+  inline static detail::_patternInit _global_pattern{"[%n] %^%l%$: %v"};
 };
 
 inline void setGlobalLevel(LEVEL level) { spdlog::set_level(level); }
