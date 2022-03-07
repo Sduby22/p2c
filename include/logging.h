@@ -24,7 +24,6 @@ private:
   std::string _pattern;
 };
 
-} // namespace detail
 class Logger {
 public:
   Logger(const std::string &name) { _logger = spdlog::stderr_color_st(name); };
@@ -49,9 +48,12 @@ public:
 
 private:
   std::shared_ptr<spdlog::logger> _logger;
-  inline static detail::_patternInit _global_pattern{"[%n] %^%l%$: %v"};
+  inline static _patternInit _global_pattern{"[%n] %^%l%$: %v"};
 };
 
+} // namespace detail
 inline void setGlobalLevel(LEVEL level) { spdlog::set_level(level); }
-inline Logger getLogger(const std::string &name) { return Logger(name); }
+inline detail::Logger getLogger(const std::string &name) {
+  return detail::Logger(name);
+}
 } // namespace logging
