@@ -2,6 +2,8 @@
     "recommendations": [
         "xaver.clang-format",
         "twxs.cmake",
-        "ms-vscode.cmake-tools"
+        "ms-vscode.cmake-tools",
+        "daohong-emilio.yash",
+        "luniclynx.lex"
     ]
 }
