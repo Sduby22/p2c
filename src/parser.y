@@ -15,6 +15,7 @@
   #include <iostream>
   #include <string>
   #include <cstdint>
+  #include "ASTNode.h"
 
   namespace p2c { /*避免包含头文件时冲突*/
     class Scanner;
@@ -65,8 +66,24 @@
 
 %token EOF ADD SUB DIV MUL 
 
+// 下面是非终结符列表
+%type <ASTNode> program 
+
 %%
-program: 
+
+// ========== 语法规则 & 语义动作定义区 ===========
+
+/*
+  格式 aa : bb cc
+         | dd ee
+  https://github.com/UO-cis561/reflex-bison-ast/blob/master/src/calc.yxx
+*/
+
+// 注：先把ppt上的生成式抄下来，暂时不管二义性的问题。
+// 有些二义性可以通过bison的运算符优先级来解决。
+aa: bb cc
+  | dd ee
+
 %%
 /*Parser实现错误处理接口*/
 void p2c::Parser::error(const p2c::location& location,const std::string& message){
