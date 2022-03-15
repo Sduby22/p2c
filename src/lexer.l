@@ -37,7 +37,7 @@
 /* 按优先级排序 修改时确保 callback 顺序符合符号定义顺序 */
 letter                  [a-zA-Z]
 digits                  [0-9]
-comment                 \/\/.*?
+comment                 (\/\/[^\n]*)|(\{[^}\n]*\})
 noquote                 [^'^\n]
 charac                  ['].[']
 wrong_identifier        {digits}+({letter})({digits}|{letter})*
@@ -98,8 +98,6 @@ semicolon               ;
 colon                   :
 dot                     \.
 comma                   ,
-l_braces                \{
-r_braces                \}
 
 /* 低优先级符号 */
 identifier              [A-Za-z][A-Za-z0-9]*
@@ -316,14 +314,6 @@ illegal_letter          .
 }
 
 {comma} {
-    
-}
-
-{l_braces} {
-    
-}
-
-{r_braces} {
     
 }
 
