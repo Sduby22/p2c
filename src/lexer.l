@@ -17,6 +17,7 @@
   #define yywrap() 1
 
   using namespace p2c;
+  using namespace std;
   #define yyterminate() Parser::make_EOF(loc);
 %}
 /* 声明使用C++版本FLEXER，c++是大小写不敏感的 */
@@ -318,7 +319,7 @@ illegal_letter          .
 }
 
 {identifier} {
-    
+  return Parser::make_IDENTIFIER(string(yytext), loc);
 }
 
 {integer} {

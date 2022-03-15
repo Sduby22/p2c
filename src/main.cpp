@@ -1,4 +1,5 @@
 #include "cxxopts.hpp"
+#include "driver.h"
 #include "logging.h"
 #include "spdlog/common.h"
 #include "spdlog/spdlog.h"
@@ -6,9 +7,14 @@
 #include <string>
 
 using namespace std;
-auto logger = logging::getLogger("Main");
+static auto logger = logging::getLogger("Main");
 
-void parse(int argc, char *argv[]) {
+int parse_file() {
+  p2c::Driver driver;
+  return driver.parse();
+}
+
+void parse_cmd(int argc, char *argv[]) {
   cxxopts::Options opts("p2c", "A Pascal-S to C translator");
   // clang-format off
   opts.add_options()
@@ -39,20 +45,15 @@ void parse(int argc, char *argv[]) {
     if (result.count("input") == 0) {
       logger.critical("no input file");
     }
+
+    parse_file();
   } catch (const cxxopts::OptionException &e) {
     cout << opts.help();
   }
 }
 
 int main(int argc, char *argv[]) {
-  parse(argc, argv);
-
-  for (int i = 0; i != 3; i++) {
-    logger.debug("test debug log {}", i);
-    logger.info("test info log {}", i);
-    logger.warn("test warn log {}", i);
-    logger.error("test error log {}", i);
-  }
+  parse_cmd(argc, argv);
 
   return 0;
 }

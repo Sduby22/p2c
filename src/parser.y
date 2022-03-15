@@ -34,7 +34,7 @@
   #include "location.hh"
   #include "logging.h"
 
-  auto logger = logging::getLogger("Parser");
+  static auto logger = logging::getLogger("Parser");
 
   /*注意：这里的参数由%parse-param决定*/
   static p2c::Parser::symbol_type yylex(p2c::Scanner& scanner,p2c::Driver &driver){
@@ -109,13 +109,11 @@
 
 // 注：先把ppt上的生成式抄下来，暂时不管二义性的问题。
 // 有些二义性可以通过bison的运算符优先级来解决。
-aa: bb cc
-  | dd ee
+program:        IDENTIFIER { logger.info("wow"); }
+        ;
 
 %%
 /*Parser实现错误处理接口*/
 void p2c::Parser::error(const p2c::location& location,const std::string& message){
-  std::stringstream ss;
-  ss << location;
-  logger.error("at {}: {}", ss.str(), message);
+  logger.error("at line {} column {}: {}", location.begin.line, location.begin.column, message);
 }

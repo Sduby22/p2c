@@ -8,9 +8,21 @@ add_subdirectory(lib/spdlog-1.9.2)
 add_subdirectory(lib/Catch2-2.13.8)
 add_subdirectory(lib/cxxopts-3.0.0)
 
-add_executable(main src/main.cpp)
+# ======== Bison =======
+find_package(FLEX REQUIRED)
+find_package(BISON REQUIRED)
+BISON_TARGET(BisonParser src/parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp)
+FLEX_TARGET(FlexScanner src/lexer.l ${CMAKE_CURRENT_BINARY_DIR}/scanner.cpp)
+ADD_FLEX_BISON_DEPENDENCY(FlexScanner BisonParser)
+
+add_library(parser ${BISON_BisonParser_OUTPUTS} ${FLEX_FlexScanner_OUTPUTS})
+target_include_directories(parser PUBLIC ${CMAKE_CURRENT_BINARY_DIR} include)
+target_link_libraries(parser PUBLIC spdlog::spdlog)
+
+# ======== Main =========
+add_executable(main src/main.cpp src/driver.cpp)
 target_include_directories(main PUBLIC include)
-target_link_libraries(main PUBLIC spdlog::spdlog cxxopts::cxxopts)
+target_link_libraries(main PUBLIC spdlog::spdlog cxxopts::cxxopts parser)
 
 # ======== CTest =========
 option(BUILD_TESTING OFF)
@@ -26,14 +38,3 @@ if (BUILD_TESTING)
 endif()
 # add_test(NAME Catch2.Test
 #   COMMAND test_main)
-
-# ======== Bison =======
-find_package(FLEX REQUIRED)
-find_package(BISON REQUIRED)
-BISON_TARGET(BisonParser src/parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp)
-FLEX_TARGET(FlexScanner src/lexer.l ${CMAKE_CURRENT_BINARY_DIR}/scanner.cpp)
-ADD_FLEX_BISON_DEPENDENCY(FlexScanner BisonParser)
-
-add_library(parser ${BISON_BisonParser_OUTPUTS} ${FLEX_FlexScanner_OUTPUTS})
-target_include_directories(parser PUBLIC ${CMAKE_CURRENT_BINARY_DIR} include)
-target_link_libraries(parser PUBLIC spdlog::spdlog)
