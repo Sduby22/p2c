@@ -70,10 +70,10 @@ key_write               [Ww][Rr][Ii][Tt][Ee]
 
 /* 运算符 */
 op_assign               :=
-op_l_parentheses        (
-op_r_parentheses        )
-op_l_square             [
-op_r_square             ]
+op_l_parentheses        \(
+op_r_parentheses        \)
+op_l_square             \[
+op_r_square             \]
 op_add                  \+
 op_sub                  \-
 op_mul                  \*
