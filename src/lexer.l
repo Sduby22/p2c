@@ -8,7 +8,9 @@
   #include "parser.hpp"  //包含由parser.y生成的头文件
   #include "scanner.h"   //包含yyFlexLexer子类的头文件
   #include "location.hh" //包含位置调试信息头文件
+  #include "logging.h"
 
+  static auto logger = logging::getLogger("Lexer");
   static p2c::location loc;//声明位置实例
   /* 定义了YY_USER_ACTION，该宏在每个记号的语义动作之前被调用，来根据记号的长度设置位置的信息 */
   #define YY_USER_ACTION  loc.columns (yyleng); 
@@ -319,6 +321,7 @@ illegal_letter          .
 }
 
 {identifier} {
+  logger.debug("identifier: {}", yytext);
   return Parser::make_IDENTIFIER(string(yytext), loc);
 }
 
@@ -333,7 +336,7 @@ illegal_letter          .
 <<EOF>>   { return yyterminate(); }
 
 {illegal_letter} {
-  printf("Mystery character %c\n", *yytext);
+  logger.error("Illegal character {}", *yytext);
   loc.step();  
 }
 
