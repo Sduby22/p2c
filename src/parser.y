@@ -70,25 +70,28 @@
 %token <std::string> IDENTIFIER
 
 //标点符号 ( ) , : ; . [ ] '
-%token LBRACKET,RBRACKET, COMMA, COLON, SEMICOLON, DOT, LSQUARE_BRACKET, RSQUARE_BRACKET, SINGLE_QUOTES
+%token LBRACKET RBRACKET COMMA COLON SEMICOLON DOT LSQUARE_BRACKET RSQUARE_BRACKET SINGLE_QUOTES
 
-//= == > < >= <= <>
-%token SINGLE_EQUEL, DOUBLE_EQUEL, GREATER_THAN, LESS_THAN, GREATER_EQUEL, LESS_EQUEL, NOT_EQUEL
+//= := > < >= <= <>
+%token EQUEL ASSIGN GREATER_THAN LESS_THAN GREATER_EQUEL LESS_EQUEL NOT_EQUEL
 
 //+ - * / div mod
-%token ADD, MINUS, STAR, SLASH, DIV, MOD
+%token ADD MINUS STAR SLASH DIV MOD
+
+//逻辑运算符 and or not
+%token AND OR NOT
 
 //..
 %token ARRAY_RANGE_SEPARATOR
 
 //保留字 program const var procedure function begin end of
-%token PROGRAM, CONST, VAR, PROCEDURE, FUNC,BEGIN, END, OF
+%token PROGRAM CONST VAR PROCEDURE FUNCBEGIN END OF
 
 //逻辑保留字 if then else for to do read write
-%token IF, THEN, ELSE, FOR, TO, DO, READ, WRITE
+%token IF THEN ELSE FOR TO DO READ WRITE
 
 //基本类型保留字  integer real boolean char array
-%token INTEGER,REAL,BOOLEAN,CHAR,ARRAY
+%token INTEGER REAL BOOLEAN CHAR ARRAY
 
 // 下面是非终结符列表
 %type <ASTNode> program 
