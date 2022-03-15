@@ -14,7 +14,7 @@ private:
 public:
   Driver();
 
-  int parse();
+  int parse(std::istream &is = std::cin, std::ostream &os = std::cout);
 
   virtual ~Driver();
 };

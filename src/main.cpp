@@ -1,17 +1,33 @@
 #include "cxxopts.hpp"
 #include "driver.h"
 #include "logging.h"
-#include "spdlog/common.h"
-#include "spdlog/spdlog.h"
 #include <cstdio>
+#include <fstream>
+#include <stdexcept>
 #include <string>
 
 using namespace std;
 static auto logger = logging::getLogger("Main");
 
-int parse_file() {
+int parse_file(const string &ifile, const string &ofile) {
+  std::ifstream is;
+  std::ofstream os;
+  if (ifile != "-") {
+    is.open(ifile);
+    if (!is.good()) {
+      logger.critical("Cannot open file: {}", ifile);
+      return -1;
+    }
+  }
+  if (ofile != "-") {
+    os.open(ofile);
+    if (!os.good()) {
+      logger.critical("Cannot open file: {}", ofile);
+      return -1;
+    }
+  }
   p2c::Driver driver;
-  return driver.parse();
+  return driver.parse(is.is_open() ? is : cin, os.is_open() ? os : cout);
 }
 
 void parse_cmd(int argc, char *argv[]) {
@@ -20,8 +36,8 @@ void parse_cmd(int argc, char *argv[]) {
   opts.add_options()
     ("d,debug", "Enable debugging")
     ("i,input", "Input File", cxxopts::value<string>())
-    ("o,output", "Output File", cxxopts::value<string>())
-    ("v,verbose", "Verbose output", cxxopts::value<bool>()->default_value("false"))
+    ("o,output", "Output File", cxxopts::value<string>()->default_value("a.out.c"))
+    ("v,verbose", "Verbose output", cxxopts::value<bool>())
     ("h,help", "Print this help message");
   // clang-format on
   opts.parse_positional({"input"});
@@ -46,7 +62,7 @@ void parse_cmd(int argc, char *argv[]) {
       logger.critical("no input file");
     }
 
-    parse_file();
+    parse_file(result["input"].as<string>(), result["output"].as<string>());
   } catch (const cxxopts::OptionException &e) {
     cout << opts.help();
   }
