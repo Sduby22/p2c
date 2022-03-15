@@ -92,6 +92,7 @@
 
 //基本类型保留字  integer real boolean char array
 %token INTEGER REAL BOOLEAN CHAR ARRAY
+%token EOF
 
 // 下面是非终结符列表
 %type <ASTNode> program 
