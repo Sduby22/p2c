@@ -318,6 +318,21 @@ illegal_letter          .
   return Parser::make_ARRAY_RANGE_SEPARATOR(loc);
 }
 
+{op_gte} {
+  logger.debug("op_gte");
+  return Parser::make_GREATER_EQUEL(loc);
+}
+
+{op_lte} {
+  logger.debug("op_lte");
+  return Parser::make_LESS_EQUEL(loc);
+}
+
+{op_neq} {
+  logger.debug("op_neq");
+  return Parser::make_NOT_EQUEL(loc);
+}
+
 {op_gt} {
   logger.debug("op_gt");
   return Parser::make_GREATER_THAN(loc);
@@ -331,22 +346,6 @@ illegal_letter          .
 {op_eq} {
   logger.debug("op_eq");
   return Parser::make_EQUEL(loc);
-
-}
-
-{op_neq} {
-  logger.debug("op_neq");
-  return Parser::make_NOT_EQUEL(loc);
-}
-
-{op_gte} {
-  logger.debug("op_gte");
-  return Parser::make_GREATER_EQUEL(loc);
-}
-
-{op_lte} {
-  logger.debug("op_lte");
-  return Parser::make_LESS_EQUEL(loc);
 }
 
 {semicolon} {
