@@ -137,183 +137,229 @@ illegal_letter          .
 }
 
 {key_program} {
-   logger.debug("program");
+  logger.debug("key_program");
+  return Parser::make_PROGRAM(loc);
 }
 
 {key_const} {
-    
+  logger.debug("key_const");
+  return Parser::make_CONST(loc);
 }
 
 {key_var} {
-    
+  logger.debug("key_var");
+  return Parser::make_VAR(loc);   
 }
 
 {key_int} {
-    
+  logger.debug("key_integer");
+  return Parser::make_INTEGER(loc);       
 }
 
 {key_bool} {
-    
+  logger.debug("key_bool");
+  return Parser::make_BOOLEAN(loc);     
 }
 
 {key_real} {
-    
+  logger.debug("key_real");
+  return Parser::make_REAL(loc);        
 }
 
 {key_char} {
-    
+  logger.debug("key_char");
+  return Parser::make_CHAR(loc);        
 }
 
 {key_array} {
-    
+  logger.debug("key_array");
+  return Parser::make_ARRAY(loc);       
 }
 
 {key_proc} {
-    
+  logger.debug("key_procedure");
+  return Parser::make_PROCEDURE(loc);       
 }
 
 {key_func} {
-    
+  logger.debug("key_function");
+  return Parser::make_FUNC(loc);       
 }
 
 {key_begin} {
-    
+  logger.debug("key_begin");
+  return Parser::make_BEGIN(loc);       
 }
 
 {key_end} {
-    
+  logger.debug("key_end");
+  return Parser::make_END(loc);       
 }
 
 {key_of} {
-    
+  logger.debug("key_of");
+  return Parser::make_OF(loc);    
 }
 
 {key_if} {
-    
+  logger.debug("key_if");
+  return Parser::make_IF(loc);    
 }
 
 {key_then} {
-    
+  logger.debug("key_then");
+  return Parser::make_THEN(loc);    
 }
 
 {key_else} {
-    
+  logger.debug("key_else");
+  return Parser::make_ELSE(loc);    
 }
 
 {key_for} {
-    
+  logger.debug("key_for");
+  return Parser::make_FOR(loc);    
 }
 
 {key_to} {
-    
+  logger.debug("key_to");
+  return Parser::make_TO(loc);    
 }
 
 {key_do} {
-    
+  logger.debug("key_do");
+  return Parser::make_DO(loc);    
 }
 
 {key_read} {
-    
+  logger.debug("key_read");
+  return Parser::make_READ(loc);    
 }
 
 {key_write} {
-    
+  logger.debug("key_write");
+  return Parser::make_WRITE(loc);        
 }
 
 {op_assign} {
-    
+  logger.debug("op_assign");
+  return Parser::make_ASSIGN(loc);        
 }
 
 {op_l_parentheses} {
-    
+  logger.debug("op_l_parentheses");
+  return Parser::make_LBRACKET(loc);        
 }
 
 {op_r_parentheses} {
-    
+  logger.debug("op_r_parentheses");
+  return Parser::make_RBRACKET(loc);       
 }
 
 {op_l_square} {
-    
+  logger.debug("op_l_square");
+  return Parser::make_LSQUARE_BRACKET(loc); 
 }
 
 {op_r_square} {
-    
+  logger.debug("op_r_square");
+  return Parser::make_RSQUARE_BRACKET(loc);
 }
 
 {op_add} {
-    
+  logger.debug("op_add");
+  return Parser::make_ADD(loc);
 }
 
 {op_sub} {
-    
+  logger.debug("op_sub");
+  return Parser::make_MINUS(loc);
 }
 
 {op_mul} {
-    
+  logger.debug("op_mul");
+  return Parser::make_STAR(loc);
 }
 
 {op_div} {
-    
+  logger.debug("op_div");
+  return Parser::make_SLASH(loc);
 }
 
 {op_mod} {
-    
+  logger.debug("op_mod");
+  return Parser::make_MOD(loc);
 }
 
 {op_div_no_rem} {
-    
+  logger.debug("op_div_no_rem");
+  return Parser::make_DIV(loc);
 }
 
 {op_and} {
-    
+  logger.debug("op_and");
+  return Parser::make_AND(loc);
 }
 
 {op_or} {
-    
+  logger.debug("op_or");
+  return Parser::make_OR(loc);
 }
 
 {op_not} {
-    
+  logger.debug("op_not");
+  return Parser::make_NOT(loc);
 }
 
 {op_period} {
-    
+  logger.debug("op_period");
+  return Parser::make_ARRAY_RANGE_SEPARATOR(loc);
 }
 
 {op_gt} {
-    
+  logger.debug("op_gt");
+  return Parser::make_GREATER_THAN(loc);
 }
 
 {op_lt} {
-    
+  logger.debug("op_lt");
+  return Parser::make_LESS_THAN(loc);
 }
 
 {op_eq} {
-    
+  logger.debug("op_eq");
+  return Parser::make_EQUEL(loc);
+
 }
 
 {op_neq} {
-    
+  logger.debug("op_neq");
+  return Parser::make_NOT_EQUEL(loc);
 }
 
 {op_gte} {
-    
+  logger.debug("op_gte");
+  return Parser::make_GREATER_EQUEL(loc);
 }
 
 {op_lte} {
-    
+  logger.debug("op_lte");
+  return Parser::make_LESS_EQUEL(loc);
 }
 
 {semicolon} {
-    
+  logger.debug("semicolon");
+  return Parser::make_SEMICOLON(loc);
 }
 
 {colon} {
-    
+  logger.debug("colon");
+  return Parser::make_COLON(loc);
 }
 
 {dot} {
-    
+  logger.debug("dot");
+  return Parser::make_DOT(loc);
 }
 
 {comma} {
@@ -327,13 +373,15 @@ illegal_letter          .
 }
 
 {integer} {
-  uint64_t value = stoi(yytext);
+  uint64_t value = atoi(yytext);
   logger.debug("const_int: {}", value);
   return Parser::make_CONST_INT(value, loc);
 }
 
 {real} {
-    
+  float value = atof(yytext);
+  logger.debug("const_float:{}",value);
+  return Parser::make_CONST_REAL(value, loc);
 }
 
 <<EOF>>   { return yyterminate(); }
@@ -345,3 +393,4 @@ illegal_letter          .
 
 %%
 //这里可以放一些C或者C++代码
+//
