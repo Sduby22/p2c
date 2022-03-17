@@ -116,11 +116,11 @@ illegal_letter          .
 %}
 
 {wrong_identifier} {
-    
+  loc.step(); 
 }
 
 {quotation_not_match} {
-    
+  loc.step();
 }
 
 {whitespace}|{comment} {
@@ -137,7 +137,7 @@ illegal_letter          .
 }
 
 {key_program} {
-    
+   logger.debug("program");
 }
 
 {key_const} {
@@ -317,7 +317,8 @@ illegal_letter          .
 }
 
 {comma} {
-    
+  logger.debug("comma");
+  return Parser::make_COMMA(loc);
 }
 
 {identifier} {
@@ -326,7 +327,9 @@ illegal_letter          .
 }
 
 {integer} {
-    
+  uint64_t value = stoi(yytext);
+  logger.debug("const_int: {}", value);
+  return Parser::make_CONST_INT(value, loc);
 }
 
 {real} {
@@ -337,7 +340,7 @@ illegal_letter          .
 
 {illegal_letter} {
   logger.error("Illegal character {}", *yytext);
-  loc.step();  
+  loc.step();
 }
 
 %%
