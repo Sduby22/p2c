@@ -103,6 +103,8 @@ dot                     \.
 comma                   ,
 
 /* 低优先级符号 */
+bool_true               [Tt][Rr][Uu][Ee]
+bool_false              [Ff][Aa][Ll][Ss][Ee]
 identifier              [A-Za-z][A-Za-z0-9]*
 integer                 [0-9]+
 real                    [0-9]+.[0-9]+
@@ -367,6 +369,18 @@ illegal_letter          .
   return Parser::make_COMMA(loc);
 }
 
+{bool_true} {
+  bool value = true;
+  logger.debug("const_bool:{}",value);
+  return Parser::make_CONST_BOOL(value, loc);
+}
+
+{bool_false} {
+  bool value = false;
+  logger.debug("const_bool:{}",value);
+  return Parser::make_CONST_BOOL(value, loc);
+}
+
 {identifier} {
   logger.debug("identifier: {}", yytext);
   return Parser::make_IDENTIFIER(string(yytext), loc);
@@ -382,6 +396,12 @@ illegal_letter          .
   float value = atof(yytext);
   logger.debug("const_float:{}",value);
   return Parser::make_CONST_REAL(value, loc);
+}
+
+{charac} {
+  char value = yytext[1];
+  logger.debug("const_char:{}",value);
+  return Parser::make_CONST_CHAR(value, loc);
 }
 
 <<EOF>>   { return yyterminate(); }
