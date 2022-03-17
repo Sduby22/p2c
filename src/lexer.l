@@ -386,7 +386,7 @@ illegal_letter          .
 }
 
 {integer} {
-  uint64_t value = atoi(yytext);
+  uint64_t value = atoll(yytext);
   logger.debug("const_int: {}", value);
   return Parser::make_CONST_INT(value, loc);
 }
