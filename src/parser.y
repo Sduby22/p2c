@@ -85,7 +85,7 @@
 %token ARRAY_RANGE_SEPARATOR
 
 //保留字 program const var procedure function begin end of
-%token PROGRAM CONST VAR PROCEDURE FUNCBEGIN END OF
+%token PROGRAM CONST VAR PROCEDURE FUNC BEGIN END OF
 
 //逻辑保留字 if then else for to do read write
 %token IF THEN ELSE FOR TO DO READ WRITE
