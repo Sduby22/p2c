@@ -73,7 +73,7 @@
 %token LBRACKET RBRACKET COMMA COLON SEMICOLON DOT LSQUARE_BRACKET RSQUARE_BRACKET SINGLE_QUOTES
 
 //= := > < >= <= <>
-%token EQUEL ASSIGN GREATER_THAN LESS_THAN GREATER_EQUEL LESS_EQUEL NOT_EQUEL
+%token EQUAL ASSIGN GREATER_THAN LESS_THAN GREATER_EQUAL LESS_EQUAL NOT_EQUAL
 
 //+ - * / div mod
 %token ADD MINUS STAR SLASH DIV MOD
@@ -95,7 +95,43 @@
 %token EOF
 
 // 下面是非终结符列表
-%type <ASTNode> program 
+%type <ASTNode> programstruct
+%type <ASTNode> program_head
+%type <ASTNode> program_body
+%type <ASTNode> idlist
+%type <ASTNode> const_declarations
+%type <ASTNode> const_declaration
+%type <ASTNode> const_value
+%type <ASTNode> var_declarations
+%type <ASTNode> var_declaration
+%type <ASTNode> type
+%type <ASTNode> basic_type
+%type <ASTNode> period
+%type <ASTNode> subprogram_declarations
+%type <ASTNode> subprogram
+%type <ASTNode> subprogram_head
+%type <ASTNode> formal_parameter
+%type <ASTNode> parameter_list
+%type <ASTNode> parameter
+%type <ASTNode> var_parameter
+%type <ASTNode> value_parameter
+%type <ASTNode> subprogram_body
+%type <ASTNode> compound_statement
+%type <ASTNode> statement
+%type <ASTNode> variable_list
+%type <ASTNode> variable
+%type <ASTNode> id_varpart
+%type <ASTNode> procedure_call
+%type <ASTNode> else_part
+%type <ASTNode> expression_list
+%type <ASTNode> expression
+%type <ASTNode> relop
+%type <ASTNode> simple_expression
+%type <ASTNode> addop
+%type <ASTNode> term
+%type <ASTNode> mulop
+%type <ASTNode> factor
+%type <ASTNode> num
 
 %%
 
@@ -109,8 +145,171 @@
 
 // 注：先把ppt上的生成式抄下来，暂时不管二义性的问题。
 // 有些二义性可以通过bison的运算符优先级来解决。
-program:        IDENTIFIER { logger.info("wow"); }
-        ;
+programstruct:
+  program_head SEMICOLON program_body DOT;
+
+program_head:
+  PROGRAM IDENTIFIER LBRACKET idlist RBRACKET |
+  PROGRAM IDENTIFIER;
+
+program_body:
+  const_declarations var_declarations subprogram_declarations compound_statement;
+
+idlist:
+  idlist COMMA IDENTIFIER |
+  IDENTIFIER;
+
+const_declarations:
+  CONST const_declaration SEMICOLON |
+  ;
+
+const_declaration:
+  const_declaration SEMICOLON IDENTIFIER EQUAL const_value |
+  IDENTIFIER EQUAL const_value;
+
+const_value:
+  ADD num |
+  MINUS num |
+  num |
+  SINGLE_QUOTES CONST_CHAR SINGLE_QUOTES;
+
+var_declarations:
+  VAR var_declaration SEMICOLON |
+  ;
+
+var_declaration:
+  var_declaration SEMICOLON idlist COLON type |
+  idlist COLON type;
+
+type:
+  basic_type |
+  ARRAY LSQUARE_BRACKET period RSQUARE_BRACKET OF basic_type;
+
+basic_type:
+  INTEGER |
+  REAL |
+  BOOLEAN |
+  CHAR;
+
+period:
+  period COMMA CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT |
+  CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT;
+
+subprogram_declarations:
+  subprogram_declarations subprogram SEMICOLON |
+  ;
+
+subprogram:
+  subprogram_head SEMICOLON subprogram_body;
+
+subprogram_head:
+  PROCEDURE IDENTIFIER formal_parameter |
+  FUNC IDENTIFIER formal_parameter COLON basic_type;
+
+formal_parameter:
+  LBRACKET parameter_list RBRACKET |
+  ;
+
+parameter_list:
+  parameter_list SEMICOLON parameter |
+  parameter;
+
+parameter:
+  var_parameter |
+  value_parameter;
+
+var_parameter:
+  VAR value_parameter;
+
+value_parameter:
+  idlist COLON basic_type;
+
+subprogram_body:
+  const_declarations var_declarations compound_statement;
+
+compound_statement:
+  BEGIN statement_list END;
+
+statement_list:
+  statement_list SEMICOLON statement |
+  statement;
+
+statement:
+  variable ASSIGN expression |
+  procedure_call |
+  compound_statement |
+  IF expression THEN statement else_part |
+  FOR IDENTIFIER ASSIGN expression TO expression DO statement |
+  READ LBRACKET variable_list RBRACKET |
+  WRITE LBRACKET expression_list RBRACKET |
+  ;
+
+variable_list:
+  variable_list COMMA variable |
+  variable;
+
+variable:
+  IDENTIFIER id_varpart;
+
+id_varpart:
+  LSQUARE_BRACKET expression_list RSQUARE_BRACKET |
+  ;
+
+procedure_call:
+  IDENTIFIER |
+  IDENTIFIER LBRACKET expression_list RBRACKET;
+
+else_part:
+  ELSE statement |
+  ;
+
+expression_list:
+  expression_list COMMA expression |
+  expression;
+
+expression:
+  simple_expression relop simple_expression |
+  simple_expression;
+
+relop:
+  GREATER_THAN |
+  LESS_THAN |
+  GREATER_EQUAL |
+  LESS_EQUAL |
+  EQUAL |
+  NOT_EQUAL;
+
+simple_expression:
+  simple_expression addop term |
+  term;
+
+addop:
+  ADD |
+  MINUS |
+  OR
+
+term:
+  term mulop factor |
+  factor;
+
+mulop:
+  STAR |
+  SLASH |
+  DIV |
+  MOD |
+  AND
+
+factor:
+  num |
+  variable |
+  IDENTIFIER LBRACKET expression_list RBRACKET |
+  LBRACKET expression RBRACKET |
+  NOT factor |
+  MINUS factor;
+
+num:
+  CONST_INT |
+  CONST_REAL
 
 %%
 /*Parser实现错误处理接口*/
