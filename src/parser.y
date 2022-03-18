@@ -95,7 +95,43 @@
 %token EOF
 
 // 下面是非终结符列表
-%type <ASTNode> program 
+%type <ASTNode> programstruct
+%type <ASTNode> program_head
+%type <ASTNode> program_body
+%type <ASTNode> idlist
+%type <ASTNode> const_declarations
+%type <ASTNode> const_declaration
+%type <ASTNode> const_value
+%type <ASTNode> var_declarations
+%type <ASTNode> var_declaration
+%type <ASTNode> type
+%type <ASTNode> basic_type
+%type <ASTNode> period
+%type <ASTNode> subprogram_declarations
+%type <ASTNode> subprogram
+%type <ASTNode> subprogram_head
+%type <ASTNode> formal_parameter
+%type <ASTNode> parameter_list
+%type <ASTNode> parameter
+%type <ASTNode> var_parameter
+%type <ASTNode> value_parameter
+%type <ASTNode> subprogram_body
+%type <ASTNode> compound_statement
+%type <ASTNode> statement
+%type <ASTNode> variable_list
+%type <ASTNode> variable
+%type <ASTNode> id_varpart
+%type <ASTNode> procedure_call
+%type <ASTNode> else_part
+%type <ASTNode> expression_list
+%type <ASTNode> expression
+%type <ASTNode> relop
+%type <ASTNode> simple_expression
+%type <ASTNode> addop
+%type <ASTNode> term
+%type <ASTNode> mulop
+%type <ASTNode> factor
+%type <ASTNode> num
 
 %%
 
@@ -119,7 +155,6 @@ program_head:
 program_body:
   const_declarations var_declarations subprogram_declarations compound_statement;
 
-/* this is now only used for parameters */
 idlist:
   idlist COMMA IDENTIFIER |
   IDENTIFIER;
@@ -160,7 +195,7 @@ period:
   period COMMA CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT |
   CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT;
 
-subprogram_declarations: 
+subprogram_declarations:
   subprogram_declarations subprogram SEMICOLON |
   ;
 
