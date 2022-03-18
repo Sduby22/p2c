@@ -320,17 +320,17 @@ illegal_letter          .
 
 {op_gte} {
   logger.debug("op_gte");
-  return Parser::make_GREATER_EQUEL(loc);
+  return Parser::make_GREATER_EQUAL(loc);
 }
 
 {op_lte} {
   logger.debug("op_lte");
-  return Parser::make_LESS_EQUEL(loc);
+  return Parser::make_LESS_EQUAL(loc);
 }
 
 {op_neq} {
   logger.debug("op_neq");
-  return Parser::make_NOT_EQUEL(loc);
+  return Parser::make_NOT_EQUAL(loc);
 }
 
 {op_gt} {
@@ -345,7 +345,7 @@ illegal_letter          .
 
 {op_eq} {
   logger.debug("op_eq");
-  return Parser::make_EQUEL(loc);
+  return Parser::make_EQUAL(loc);
 }
 
 {semicolon} {
