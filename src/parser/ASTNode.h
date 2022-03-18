@@ -1,5 +1,6 @@
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace p2c {
@@ -9,12 +10,20 @@ public:
   std::vector<std::unique_ptr<ASTNode>> childs;
   ASTNode *parent;
 
-  virtual void printNode();
+  virtual std::string printNode();
   virtual std::string genCCode() = 0;
-  void addChild(std::unique_ptr<ASTNode> child);
+  void appendChild(std::unique_ptr<ASTNode> child);
 
 private:
-  static constexpr auto name = "VirtualASTNode";
+  virtual const std::string &_getName() = 0;
+  virtual std::string _infoStr() = 0;
+  virtual void _printNode(int level, std::string &str);
+  int _indent;
 };
+
+template <typename NodeT, typename... Args>
+std::unique_ptr<ASTNode> make_Node(Args &&...args) {
+  return std::make_unique<NodeT>(std::forward(args)...);
+}
 
 } // namespace p2c
