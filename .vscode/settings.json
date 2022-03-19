@@ -4,6 +4,7 @@
     "editor.defaultFormatter": "xaver.clang-format",
     "cmake.configureOnOpen": false,
     "cmake.configureArgs": [
-        "-DBUILD_TESTING=ON"
+        "-DBUILD_TESTING=ON",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
     ],
 }

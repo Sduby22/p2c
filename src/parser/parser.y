@@ -143,7 +143,7 @@
   格式 aa : bb cc
         
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 } dd ee
   https://github.com/UO-cis561/reflex-bison-ast/blob/master/src/calc.yxx
 */
@@ -153,437 +153,437 @@
 programstruct:
   program_head SEMICOLON program_body DOT
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 program_head:
   PROGRAM IDENTIFIER LBRACKET idlist RBRACKET
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | PROGRAM IDENTIFIER
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 program_body:
   const_declarations var_declarations subprogram_declarations compound_statement
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 idlist:
   idlist COMMA IDENTIFIER
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | IDENTIFIER
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 const_declarations:
   CONST const_declaration SEMICOLON
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | /* %empty */
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 const_declaration:
   const_declaration SEMICOLON IDENTIFIER EQUAL const_value
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | IDENTIFIER EQUAL const_value
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 const_value:
   ADD num
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | MINUS num
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | num
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
-  | SINGLE_QUOTES CONST_CHAR SINGLE_QUOTES
+  | CONST_CHAR
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 var_declarations:
   VAR var_declaration SEMICOLON
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | /* %empty */
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 var_declaration:
   var_declaration SEMICOLON idlist COLON type
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | idlist COLON type
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 type:
   basic_type
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | ARRAY LSQUARE_BRACKET period RSQUARE_BRACKET OF basic_type
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 basic_type:
   INTEGER
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | REAL
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | BOOLEAN
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | CHAR
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 period:
   period COMMA CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 subprogram_declarations:
   subprogram_declarations subprogram SEMICOLON
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   |  /* %empty */
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 subprogram:
   subprogram_head SEMICOLON subprogram_body
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 subprogram_head:
   PROCEDURE IDENTIFIER formal_parameter
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | FUNC IDENTIFIER formal_parameter COLON basic_type
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 formal_parameter:
   LBRACKET parameter_list RBRACKET
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   |  /* %empty */
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 parameter_list:
   parameter_list SEMICOLON parameter
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | parameter
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 parameter:
   var_parameter
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | value_parameter
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 var_parameter:
   VAR value_parameter
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 value_parameter:
   idlist COLON basic_type
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 subprogram_body:
   const_declarations var_declarations compound_statement
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 compound_statement:
   BEGIN statement_list END
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 statement_list:
   statement_list SEMICOLON statement
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | statement
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 statement:
   variable ASSIGN expression
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | procedure_call
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | compound_statement
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | IF expression THEN statement else_part
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | FOR IDENTIFIER ASSIGN expression TO expression DO statement
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | READ LBRACKET variable_list RBRACKET
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | WRITE LBRACKET expression_list RBRACKET
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | /* %empty */
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 variable_list:
   variable_list COMMA variable
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | variable
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 variable:
   IDENTIFIER id_varpart
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 id_varpart:
   LSQUARE_BRACKET expression_list RSQUARE_BRACKET
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   |  /* %empty */
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 procedure_call:
   IDENTIFIER
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | IDENTIFIER LBRACKET expression_list RBRACKET
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 else_part:
   ELSE statement
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   |  /* %empty */
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 expression_list:
   expression_list COMMA expression
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | expression
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 expression:
   simple_expression relop simple_expression
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | simple_expression
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 relop:
   GREATER_THAN
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | LESS_THAN
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | GREATER_EQUAL
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | LESS_EQUAL
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | EQUAL
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | NOT_EQUAL
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 simple_expression:
   simple_expression addop term
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | term
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 addop:
   ADD
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | MINUS
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | OR
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 term:
   term mulop factor
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | factor
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 mulop:
   STAR
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | SLASH
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | DIV
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | MOD
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | AND
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 factor:
   num
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | variable
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | IDENTIFIER LBRACKET expression_list RBRACKET
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | LBRACKET expression RBRACKET
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | NOT factor
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | MINUS factor
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 num:
   CONST_INT
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 }
   | CONST_REAL
                 {
-                  $$ = make_unique<ASTNode>();
+                  $$ = nullptr;
                 };
 
 %%
