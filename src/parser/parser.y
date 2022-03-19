@@ -95,7 +95,7 @@
 
 //基本类型保留字  integer real boolean char array
 %token INTEGER REAL BOOLEAN CHAR ARRAY
-%token EOF
+%token EOF 0 "end of file"
 
 // 下面是非终结符列表
 %type <unique_ptr<ASTNode>> programstruct
@@ -154,7 +154,9 @@
 // 有些二义性可以通过bison的运算符优先级来解决。
 programstruct:
   program_head SEMICOLON program_body DOT
+  /* CONST_INT CONST_REAL CONST_BOOL CONST_CHAR IDENTIFIER */
                 {
+                  logger.debug("wow");
                   $$ = nullptr;
                 };
 

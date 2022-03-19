@@ -45,7 +45,7 @@ noquote                 [^'^\n]
 charac                  ['].[']
 wrong_identifier        {digits}+({letter})({digits}|{letter})*
 quotation_not_match     (\'|\")
-whitespace              [\s\t]
+whitespace              [\s\t ]
 newline                 \r\n|\n\r|\n|\r
 
 /* 关键字 */
