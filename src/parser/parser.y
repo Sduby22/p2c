@@ -21,6 +21,8 @@
     class Scanner;
     class Driver;
   }
+
+  using std::unique_ptr;
 }
 
 %code top
@@ -96,44 +98,44 @@
 %token EOF
 
 // 下面是非终结符列表
-%type <std::unique_ptr<ASTNode>> programstruct
-%type <std::unique_ptr<ASTNode>> program_head
-%type <std::unique_ptr<ASTNode>> program_body
-%type <std::unique_ptr<ASTNode>> idlist
-%type <std::unique_ptr<ASTNode>> const_declarations
-%type <std::unique_ptr<ASTNode>> const_declaration
-%type <std::unique_ptr<ASTNode>> const_value
-%type <std::unique_ptr<ASTNode>> var_declarations
-%type <std::unique_ptr<ASTNode>> var_declaration
-%type <std::unique_ptr<ASTNode>> type
-%type <std::unique_ptr<ASTNode>> basic_type
-%type <std::unique_ptr<ASTNode>> period
-%type <std::unique_ptr<ASTNode>> subprogram_declarations
-%type <std::unique_ptr<ASTNode>> subprogram
-%type <std::unique_ptr<ASTNode>> subprogram_head
-%type <std::unique_ptr<ASTNode>> formal_parameter
-%type <std::unique_ptr<ASTNode>> parameter_list
-%type <std::unique_ptr<ASTNode>> parameter
-%type <std::unique_ptr<ASTNode>> var_parameter
-%type <std::unique_ptr<ASTNode>> value_parameter
-%type <std::unique_ptr<ASTNode>> subprogram_body
-%type <std::unique_ptr<ASTNode>> compound_statement
-%type <std::unique_ptr<ASTNode>> statement
-%type <std::unique_ptr<ASTNode>> statement_list
-%type <std::unique_ptr<ASTNode>> variable_list
-%type <std::unique_ptr<ASTNode>> variable
-%type <std::unique_ptr<ASTNode>> id_varpart
-%type <std::unique_ptr<ASTNode>> procedure_call
-%type <std::unique_ptr<ASTNode>> else_part
-%type <std::unique_ptr<ASTNode>> expression_list
-%type <std::unique_ptr<ASTNode>> expression
-%type <std::unique_ptr<ASTNode>> relop
-%type <std::unique_ptr<ASTNode>> simple_expression
-%type <std::unique_ptr<ASTNode>> addop
-%type <std::unique_ptr<ASTNode>> term
-%type <std::unique_ptr<ASTNode>> mulop
-%type <std::unique_ptr<ASTNode>> factor
-%type <std::unique_ptr<ASTNode>> num
+%type <unique_ptr<ASTNode>> programstruct
+%type <unique_ptr<ASTNode>> program_head
+%type <unique_ptr<ASTNode>> program_body
+%type <unique_ptr<ASTNode>> idlist
+%type <unique_ptr<ASTNode>> const_declarations
+%type <unique_ptr<ASTNode>> const_declaration
+%type <unique_ptr<ASTNode>> const_value
+%type <unique_ptr<ASTNode>> var_declarations
+%type <unique_ptr<ASTNode>> var_declaration
+%type <unique_ptr<ASTNode>> type
+%type <unique_ptr<ASTNode>> basic_type
+%type <unique_ptr<ASTNode>> period
+%type <unique_ptr<ASTNode>> subprogram_declarations
+%type <unique_ptr<ASTNode>> subprogram
+%type <unique_ptr<ASTNode>> subprogram_head
+%type <unique_ptr<ASTNode>> formal_parameter
+%type <unique_ptr<ASTNode>> parameter_list
+%type <unique_ptr<ASTNode>> parameter
+%type <unique_ptr<ASTNode>> var_parameter
+%type <unique_ptr<ASTNode>> value_parameter
+%type <unique_ptr<ASTNode>> subprogram_body
+%type <unique_ptr<ASTNode>> compound_statement
+%type <unique_ptr<ASTNode>> statement
+%type <unique_ptr<ASTNode>> statement_list
+%type <unique_ptr<ASTNode>> variable_list
+%type <unique_ptr<ASTNode>> variable
+%type <unique_ptr<ASTNode>> id_varpart
+%type <unique_ptr<ASTNode>> procedure_call
+%type <unique_ptr<ASTNode>> else_part
+%type <unique_ptr<ASTNode>> expression_list
+%type <unique_ptr<ASTNode>> expression
+%type <unique_ptr<ASTNode>> relop
+%type <unique_ptr<ASTNode>> simple_expression
+%type <unique_ptr<ASTNode>> addop
+%type <unique_ptr<ASTNode>> term
+%type <unique_ptr<ASTNode>> mulop
+%type <unique_ptr<ASTNode>> factor
+%type <unique_ptr<ASTNode>> num
 
 %%
 
