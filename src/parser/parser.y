@@ -13,16 +13,19 @@
 {
   /*requires中的内容会放在YYLTYPE与YYSTPYPE定义前*/
   #include <iostream>
+  #include <tuple>
   #include <string>
   #include <cstdint>
+  #include <vector>
   #include "ASTNode.h"
+  #include "spdlog/fmt/fmt.h"
 
   namespace p2c { /*避免包含头文件时冲突*/
     class Scanner;
     class Driver;
   }
 
-  using std::unique_ptr;
+  using namespace std;
 }
 
 %code top
@@ -70,7 +73,7 @@
 %token <float> CONST_REAL
 %token <char> CONST_CHAR
 %token <bool> CONST_BOOL
-%token <std::string> IDENTIFIER
+%token <string> IDENTIFIER
 
 //标点符号 ( ) , : ; . [ ] '
 %token LBRACKET RBRACKET COMMA COLON SEMICOLON DOT LSQUARE_BRACKET RSQUARE_BRACKET SINGLE_QUOTES
@@ -101,15 +104,15 @@
 %type <unique_ptr<ASTNode>> programstruct
 %type <unique_ptr<ASTNode>> program_head
 %type <unique_ptr<ASTNode>> program_body
-%type <unique_ptr<ASTNode>> idlist
+%type <vector<string>> idlist
 %type <unique_ptr<ASTNode>> const_declarations
 %type <unique_ptr<ASTNode>> const_declaration
 %type <unique_ptr<ASTNode>> const_value
 %type <unique_ptr<ASTNode>> var_declarations
-%type <unique_ptr<ASTNode>> var_declaration
-%type <unique_ptr<ASTNode>> type
-%type <unique_ptr<ASTNode>> basic_type
-%type <unique_ptr<ASTNode>> period
+%type <vector<unique_ptr<ASTNode>>> var_declaration
+%type <string> type
+%type <string> basic_type
+%type <vector<tuple<int, int>>> period
 %type <unique_ptr<ASTNode>> subprogram_declarations
 %type <unique_ptr<ASTNode>> subprogram
 %type <unique_ptr<ASTNode>> subprogram_head
@@ -152,11 +155,37 @@
 
 // 注：先把ppt上的生成式抄下来，暂时不管二义性的问题。
 // 有些二义性可以通过bison的运算符优先级来解决。
+
+var_declaration:
+  var_declaration SEMICOLON idlist COLON type
+                {
+                  $$ = move($1);
+                  for (const auto& id: $3) {
+                    auto node = make_unique<VarDeclaration>();
+                    node->var_name = id;
+                    node->var_type = $5;
+                    $$.push_back(move(node));
+                  }
+                  for (auto &node: $$) {
+                    logger.debug(node->printNode());
+                  }
+                }
+  | idlist COLON type
+                {
+                  $$ = vector<unique_ptr<ASTNode>>{};
+                  for (const auto& id: $1) {
+                    auto node = make_unique<VarDeclaration>();
+                    node->var_name = id;
+                    node->var_type = $3;
+                    $$.push_back(move(node));
+                  }
+                  for (auto &node: $$) {
+                    logger.debug(node->printNode());
+                  }
+                };
 programstruct:
   program_head SEMICOLON program_body DOT
-  /* CONST_INT CONST_REAL CONST_BOOL CONST_CHAR IDENTIFIER */
                 {
-                  logger.debug("wow");
                   $$ = nullptr;
                 };
 
@@ -179,11 +208,12 @@ program_body:
 idlist:
   idlist COMMA IDENTIFIER
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  $$.push_back($3);
                 }
   | IDENTIFIER
                 {
-                  $$ = nullptr;
+                  $$ = vector{$1};
                 };
 
 const_declarations:
@@ -234,52 +264,66 @@ var_declarations:
                   $$ = nullptr;
                 };
 
-var_declaration:
+/* var_declaration:
   var_declaration SEMICOLON idlist COLON type
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  for (const auto& id: $3) {
+                    auto node = make_unique<VarDeclaration>();
+                    node->var_name = id;
+                    node->var_type = $5;
+                    $$.push_back(move(node));
+                  }
                 }
   | idlist COLON type
                 {
-                  $$ = nullptr;
-                };
+                  $$ = vector<unique_ptr<ASTNode>>{};
+                  for (const auto& id: $1) {
+                    auto node = make_unique<VarDeclaration>();
+                    node->var_name = id;
+                    node->var_type = $3;
+                    $$.push_back(move(node));
+                  }
+                }; */
 
 type:
   basic_type
                 {
-                  $$ = nullptr;
+                  $$ = $1;
                 }
   | ARRAY LSQUARE_BRACKET period RSQUARE_BRACKET OF basic_type
                 {
-                  $$ = nullptr;
+                  $$ = fmt::format("array of {}", $6);
                 };
 
 basic_type:
   INTEGER
                 {
-                  $$ = nullptr;
+                  $$ = "int";
                 }
   | REAL
                 {
-                  $$ = nullptr;
+                  $$ = "real";
                 }
   | BOOLEAN
                 {
-                  $$ = nullptr;
+                  $$ = "boolean";
                 }
   | CHAR
                 {
-                  $$ = nullptr;
+                  $$ = "char";
                 };
 
 period:
   period COMMA CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  $$.push_back({$3, $5});
                 }
   | CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT
                 {
-                  $$ = nullptr;
+                  $$ = vector<tuple<int, int>>{};
+                  $$.push_back({$1, $3});
                 };
 
 subprogram_declarations:
@@ -592,6 +636,6 @@ num:
 
 %%
 /*Parser实现错误处理接口*/
-void p2c::Parser::error(const p2c::location& location,const std::string& message){
+void p2c::Parser::error(const p2c::location& location,const string& message){
   logger.error("at line {} column {}: {}", location.begin.line, location.begin.column, message);
 }

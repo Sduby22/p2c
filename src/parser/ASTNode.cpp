@@ -31,4 +31,17 @@ namespace p2c {
     childs.push_back(move(child));
     child->parent = this;
   }
+
+  const string& VarDeclaration::_getName() {
+    static string name = "VarDeclaration";
+    return name;
+  }
+
+  string VarDeclaration::_infoStr() {
+    return fmt::format("name: {} type: {}", var_name, var_type);
+  }
+
+  string VarDeclaration::genCCode() {
+    return "";
+  }
 } // namespace p2c

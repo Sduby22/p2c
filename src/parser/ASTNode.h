@@ -7,6 +7,8 @@ namespace p2c {
 
 class ASTNode {
 public:
+  virtual ~ASTNode() = default;
+
   std::vector<std::unique_ptr<ASTNode>> childs;
   ASTNode *parent;
 
@@ -19,6 +21,16 @@ private:
   virtual std::string _infoStr() = 0;
   virtual void _printNode(int level, std::string &str);
   int _indent;
+};
+
+class VarDeclaration: public ASTNode {
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+public:
+  std::string var_name;
+  std::string var_type;
+  virtual std::string genCCode();
 };
 
 template <typename NodeT, typename... Args>
