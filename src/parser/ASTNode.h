@@ -7,6 +7,8 @@ namespace p2c {
 
 class ASTNode {
 public:
+  virtual ~ASTNode() = default;
+
   virtual std::string printNode();
   virtual std::string genCCode() = 0;
   void appendChild(std::unique_ptr<ASTNode> child);
