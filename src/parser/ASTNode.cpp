@@ -18,7 +18,7 @@ namespace p2c {
     else
       str += fmt::format("{}<{} {}>\n", indent, _getName(), infoStr);
     for (auto &child : childs) {
-      _printNode(level + 1, str);
+      child->_printNode(level + 1, str);
     }
   }
 
@@ -28,7 +28,7 @@ namespace p2c {
   }
 
   void ASTNode::appendChild(std::unique_ptr<ASTNode> child) {
-    childs.push_back(move(child));
     child->parent = this;
+    childs.push_back(move(child));
   }
 } // namespace p2c
