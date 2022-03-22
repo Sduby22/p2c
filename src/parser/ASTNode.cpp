@@ -12,7 +12,7 @@ namespace p2c {
 
   void ASTNode::_printNode(int level, string &str) {
     auto infoStr = _infoStr();
-    static string indent(level * 2, ' ');
+    string indent(level * 2, ' ');
     if (infoStr.empty())
       str += fmt::format("{}<{}>\n", indent, _getName());
     else
