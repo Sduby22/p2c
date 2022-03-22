@@ -13,6 +13,17 @@ enum class Operator {
   ADD,
   MINUS,
   OR,
+  STAR,
+  SLASH,
+  DIV,
+  MOD,
+  AND,
+  GREATER_THAN,
+  LESS_THAN,
+  GREATER_EQUAL,
+  LESS_EQUAL,
+  EQUAL,
+  NOT_EQUAL
   // ...
 };
 

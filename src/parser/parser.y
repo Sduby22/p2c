@@ -182,11 +182,13 @@ program_body:
 idlist:
   idlist COMMA IDENTIFIER
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  $$.push_back($3);
                 }
   | IDENTIFIER
                 {
-                  $$ = nullptr;
+                  $$ = vector<string>{};
+                  $$.push_back($1);
                 };
 
 const_declarations:
@@ -462,129 +464,144 @@ factor:
 num:
   CONST_INT
                 {
-                  $$ = nullptr;
+                  $$ = $1;
                 }
   | CONST_REAL
                 {
-                  $$ = nullptr;
+                  $$ = $1;
                 };
 
 addop:
   ADD
                 {
-                  $$ = nullptr;
+                  $$ = Operator::ADD;
                 }
   | MINUS
                 {
-                  $$ = nullptr;
+                  $$ = Operator::MINUS;
                 }
   | OR
                 {
-                  $$ = nullptr;
+                  $$ = Operator::OR;
                 };
 
 mulop:
   STAR
                 {
-                  $$ = nullptr;
+                  $$ = Operator::STAR;
                 }
   | SLASH
                 {
-                  $$ = nullptr;
+                  $$ = Operator::SLASH;
                 }
   | DIV
                 {
-                  $$ = nullptr;
+                  $$ = Operator::DIV;
                 }
   | MOD
                 {
-                  $$ = nullptr;
+                  $$ = Operator::MOD;
                 }
   | AND
                 {
-                  $$ = nullptr;
+                  $$ = Operator::AND;
                 };
 
 relop:
   GREATER_THAN
                 {
-                  $$ = nullptr;
+                  $$ = Operator::GREATER_THAN;
                 }
   | LESS_THAN
                 {
-                  $$ = nullptr;
+                  $$ = Operator::LESS_THAN;
                 }
   | GREATER_EQUAL
                 {
-                  $$ = nullptr;
+                  $$ = Operator::GREATER_EQUAL;
                 }
   | LESS_EQUAL
                 {
-                  $$ = nullptr;
+                  $$ = Operator::LESS_EQUAL;
                 }
   | EQUAL
                 {
-                  $$ = nullptr;
+                  $$ = Operator::EQUAL;
                 }
   | NOT_EQUAL
                 {
-                  $$ = nullptr;
+                  $$ = Operator::NOT_EQUAL;
                 };
 
 type:
   basic_type
                 {
-                  $$ = nullptr;
+                  $$ = $1;
                 }
   | ARRAY LSQUARE_BRACKET period RSQUARE_BRACKET OF basic_type
                 {
-                  $$ = nullptr;
+                  ArrayType arrayType = {$6, $3};
+                  $$ = arrayType;
                 };
 
 basic_type:
   INTEGER
                 {
-                  $$ = nullptr;
+                  $$ = BasicType::INTEGER;
                 }
   | REAL
                 {
-                  $$ = nullptr;
+                  $$ = BasicType::REAL;
                 }
   | BOOLEAN
                 {
-                  $$ = nullptr;
+                  $$ = BasicType::BOOLEAN;
                 }
   | CHAR
                 {
-                  $$ = nullptr;
+                  $$ = BasicType::CHAR;
                 };
 
 period:
   period COMMA CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  $$.push_back({$3, $5});
                 }
   | CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT
                 {
-                  $$ = nullptr;
+                  $$ = vector<tuple<int, int>>{};
+                  $$.push_back({$1, $3});
                 };
 
 const_value:
   ADD num
                 {
-                  $$ = nullptr;
+                  try{
+                    $$ = get<0>($2);
+                  } catch(bad_variant_access&){
+                    $$ = get<1>($2);
+                  }
                 }
   | MINUS num
                 {
-                  $$ = nullptr;
+                  try{
+                    $$ = get<0>($2);
+                  } catch(bad_variant_access&){
+                    $$ = get<1>($2);
+                  }
                 }
   | num
                 {
-                  $$ = nullptr;
+                  try{
+                    $$ = get<0>($1);
+                  } catch(bad_variant_access&){
+                    $$ = get<1>($1);
+                  }
                 }
   | CONST_CHAR
                 {
-                  $$ = nullptr;
+                  $$ = $1;
                 };
 
 %%
