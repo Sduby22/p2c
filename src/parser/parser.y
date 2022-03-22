@@ -132,9 +132,9 @@
 %type <unique_ptr<ASTNode>> factor
 
 %type <variant<uint64_t, float>> num
-%type <Operators> relop
-%type <Operators> addop
-%type <Operators> mulop
+%type <Operator> relop
+%type <Operator> addop
+%type <Operator> mulop
 %type <variant<BasicType, ArrayType>> type
 %type <BasicType> basic_type
 %type <vector<tuple<int, int>>> period
