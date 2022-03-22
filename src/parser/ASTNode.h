@@ -1,9 +1,32 @@
 #include <memory>
+#include <variant>
 #include <string>
 #include <utility>
 #include <vector>
 
+using namespace std;
 namespace p2c {
+
+using ValueType = variant<uint64_t, float, bool, char>;
+
+enum class Operator {
+  ADD,
+  MINUS,
+  OR,
+  // ...
+};
+
+enum class BasicType {
+  INTEGER,
+  REAL,
+  BOOLEAN,
+  CHAR
+};
+
+struct ArrayType {
+  BasicType basictype;
+  std::vector<std::tuple<int, int>> dimensions;
+};
 
 class ASTNode {
 public:

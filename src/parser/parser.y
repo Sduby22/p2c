@@ -14,6 +14,7 @@
   /*requires中的内容会放在YYLTYPE与YYSTPYPE定义前*/
   #include <iostream>
   #include <string>
+  #include <variant>
   #include <cstdint>
   #include "ASTNode.h"
 
@@ -104,15 +105,10 @@
 %type <unique_ptr<ASTNode>> programstruct
 %type <unique_ptr<ASTNode>> program_head
 %type <unique_ptr<ASTNode>> program_body
-%type <unique_ptr<ASTNode>> idlist
 %type <unique_ptr<ASTNode>> const_declarations
 %type <unique_ptr<ASTNode>> const_declaration
-%type <unique_ptr<ASTNode>> const_value
 %type <unique_ptr<ASTNode>> var_declarations
 %type <unique_ptr<ASTNode>> var_declaration
-%type <unique_ptr<ASTNode>> type
-%type <unique_ptr<ASTNode>> basic_type
-%type <unique_ptr<ASTNode>> period
 %type <unique_ptr<ASTNode>> subprogram_declarations
 %type <unique_ptr<ASTNode>> subprogram
 %type <unique_ptr<ASTNode>> subprogram_head
@@ -131,14 +127,19 @@
 %type <unique_ptr<ASTNode>> procedure_call
 %type <unique_ptr<ASTNode>> expression_list
 %type <unique_ptr<ASTNode>> expression
-%type <unique_ptr<ASTNode>> relop
 %type <unique_ptr<ASTNode>> simple_expression
-%type <unique_ptr<ASTNode>> addop
 %type <unique_ptr<ASTNode>> term
-%type <unique_ptr<ASTNode>> mulop
 %type <unique_ptr<ASTNode>> factor
-%type <unique_ptr<ASTNode>> num
 
+%type <variant<uint64_t, float>> num
+%type <Operator> relop
+%type <Operator> addop
+%type <Operator> mulop
+%type <variant<BasicType, ArrayType>> type
+%type <BasicType> basic_type
+%type <vector<tuple<int, int>>> period
+%type <vector<string>> idlist
+%type <variant<uint64_t, float, bool, char>> const_value
 %%
 
 // ========== 语法规则 & 语义动作定义区 ===========
@@ -208,24 +209,6 @@ const_declaration:
                   $$ = nullptr;
                 };
 
-const_value:
-  ADD num
-                {
-                  $$ = nullptr;
-                }
-  | MINUS num
-                {
-                  $$ = nullptr;
-                }
-  | num
-                {
-                  $$ = nullptr;
-                }
-  | CONST_CHAR
-                {
-                  $$ = nullptr;
-                };
-
 var_declarations:
   VAR var_declaration SEMICOLON
                 {
@@ -242,44 +225,6 @@ var_declaration:
                   $$ = nullptr;
                 }
   | idlist COLON type
-                {
-                  $$ = nullptr;
-                };
-
-type:
-  basic_type
-                {
-                  $$ = nullptr;
-                }
-  | ARRAY LSQUARE_BRACKET period RSQUARE_BRACKET OF basic_type
-                {
-                  $$ = nullptr;
-                };
-
-basic_type:
-  INTEGER
-                {
-                  $$ = nullptr;
-                }
-  | REAL
-                {
-                  $$ = nullptr;
-                }
-  | BOOLEAN
-                {
-                  $$ = nullptr;
-                }
-  | CHAR
-                {
-                  $$ = nullptr;
-                };
-
-period:
-  period COMMA CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT
-                {
-                  $$ = nullptr;
-                }
-  | CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT
                 {
                   $$ = nullptr;
                 };
@@ -468,32 +413,6 @@ expression:
                   $$ = nullptr;
                 };
 
-relop:
-  GREATER_THAN
-                {
-                  $$ = nullptr;
-                }
-  | LESS_THAN
-                {
-                  $$ = nullptr;
-                }
-  | GREATER_EQUAL
-                {
-                  $$ = nullptr;
-                }
-  | LESS_EQUAL
-                {
-                  $$ = nullptr;
-                }
-  | EQUAL
-                {
-                  $$ = nullptr;
-                }
-  | NOT_EQUAL
-                {
-                  $$ = nullptr;
-                };
-
 simple_expression:
   simple_expression addop term
                 {
@@ -504,48 +423,12 @@ simple_expression:
                   $$ = nullptr;
                 };
 
-addop:
-  ADD
-                {
-                  $$ = nullptr;
-                }
-  | MINUS
-                {
-                  $$ = nullptr;
-                }
-  | OR
-                {
-                  $$ = nullptr;
-                };
-
 term:
   term mulop factor
                 {
                   $$ = nullptr;
                 }
   | factor
-                {
-                  $$ = nullptr;
-                };
-
-mulop:
-  STAR
-                {
-                  $$ = nullptr;
-                }
-  | SLASH
-                {
-                  $$ = nullptr;
-                }
-  | DIV
-                {
-                  $$ = nullptr;
-                }
-  | MOD
-                {
-                  $$ = nullptr;
-                }
-  | AND
                 {
                   $$ = nullptr;
                 };
@@ -582,6 +465,124 @@ num:
                   $$ = nullptr;
                 }
   | CONST_REAL
+                {
+                  $$ = nullptr;
+                };
+
+addop:
+  ADD
+                {
+                  $$ = nullptr;
+                }
+  | MINUS
+                {
+                  $$ = nullptr;
+                }
+  | OR
+                {
+                  $$ = nullptr;
+                };
+
+mulop:
+  STAR
+                {
+                  $$ = nullptr;
+                }
+  | SLASH
+                {
+                  $$ = nullptr;
+                }
+  | DIV
+                {
+                  $$ = nullptr;
+                }
+  | MOD
+                {
+                  $$ = nullptr;
+                }
+  | AND
+                {
+                  $$ = nullptr;
+                };
+
+relop:
+  GREATER_THAN
+                {
+                  $$ = nullptr;
+                }
+  | LESS_THAN
+                {
+                  $$ = nullptr;
+                }
+  | GREATER_EQUAL
+                {
+                  $$ = nullptr;
+                }
+  | LESS_EQUAL
+                {
+                  $$ = nullptr;
+                }
+  | EQUAL
+                {
+                  $$ = nullptr;
+                }
+  | NOT_EQUAL
+                {
+                  $$ = nullptr;
+                };
+
+type:
+  basic_type
+                {
+                  $$ = nullptr;
+                }
+  | ARRAY LSQUARE_BRACKET period RSQUARE_BRACKET OF basic_type
+                {
+                  $$ = nullptr;
+                };
+
+basic_type:
+  INTEGER
+                {
+                  $$ = nullptr;
+                }
+  | REAL
+                {
+                  $$ = nullptr;
+                }
+  | BOOLEAN
+                {
+                  $$ = nullptr;
+                }
+  | CHAR
+                {
+                  $$ = nullptr;
+                };
+
+period:
+  period COMMA CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT
+                {
+                  $$ = nullptr;
+                }
+  | CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT
+                {
+                  $$ = nullptr;
+                };
+
+const_value:
+  ADD num
+                {
+                  $$ = nullptr;
+                }
+  | MINUS num
+                {
+                  $$ = nullptr;
+                }
+  | num
+                {
+                  $$ = nullptr;
+                }
+  | CONST_CHAR
                 {
                   $$ = nullptr;
                 };
