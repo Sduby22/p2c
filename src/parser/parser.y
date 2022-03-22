@@ -22,7 +22,7 @@
     class Driver;
   }
 
-  using std::unique_ptr;
+  using namespace std;
 }
 
 %code top
@@ -70,7 +70,7 @@
 %token <float> CONST_REAL
 %token <char> CONST_CHAR
 %token <bool> CONST_BOOL
-%token <std::string> IDENTIFIER
+%token <string> IDENTIFIER
 
 //标点符号 ( ) , : ; . [ ] '
 %token LBRACKET RBRACKET COMMA COLON SEMICOLON DOT LSQUARE_BRACKET RSQUARE_BRACKET SINGLE_QUOTES
@@ -588,6 +588,6 @@ num:
 
 %%
 /*Parser实现错误处理接口*/
-void p2c::Parser::error(const p2c::location& location,const std::string& message){
+void p2c::Parser::error(const p2c::location& location,const string& message){
   logger.error("at line {} column {}: {}", location.begin.line, location.begin.column, message);
 }

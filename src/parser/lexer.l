@@ -107,7 +107,7 @@ bool_true               [Tt][Rr][Uu][Ee]
 bool_false              [Ff][Aa][Ll][Ss][Ee]
 identifier              [A-Za-z][A-Za-z0-9]*
 integer                 [0-9]+
-real                    [0-9]+.[0-9]+
+real                    [0-9]+\.[0-9]+
 illegal_letter          .
 
 %%
