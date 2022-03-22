@@ -97,6 +97,9 @@
 %token INTEGER REAL BOOLEAN CHAR ARRAY
 %token EOF 0 "end of file"
 
+%precedence THEN
+%precedence ELSE
+
 // 下面是非终结符列表
 %type <unique_ptr<ASTNode>> programstruct
 %type <unique_ptr<ASTNode>> program_head
@@ -126,7 +129,6 @@
 %type <unique_ptr<ASTNode>> variable
 %type <unique_ptr<ASTNode>> id_varpart
 %type <unique_ptr<ASTNode>> procedure_call
-%type <unique_ptr<ASTNode>> else_part
 %type <unique_ptr<ASTNode>> expression_list
 %type <unique_ptr<ASTNode>> expression
 %type <unique_ptr<ASTNode>> relop
@@ -385,7 +387,11 @@ statement:
                 {
                   $$ = nullptr;
                 }
-  | IF expression THEN statement else_part
+  | IF expression THEN statement ELSE statement
+                {
+                  $$ = nullptr;
+                }
+  | IF expression THEN statement 
                 {
                   $$ = nullptr;
                 }
@@ -438,16 +444,6 @@ procedure_call:
                   $$ = nullptr;
                 }
   | IDENTIFIER LBRACKET expression_list RBRACKET
-                {
-                  $$ = nullptr;
-                };
-
-else_part:
-  ELSE statement
-                {
-                  $$ = nullptr;
-                }
-  |  /* %empty */
                 {
                   $$ = nullptr;
                 };
