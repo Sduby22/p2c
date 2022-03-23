@@ -577,25 +577,25 @@ period:
 const_value:
   ADD num
                 {
-                  try{
+                  if (holds_alternative<uint64_t>($2)){
                     $$ = get<0>($2);
-                  } catch(bad_variant_access&){
+                  } else {
                     $$ = get<1>($2);
                   }
                 }
   | MINUS num
                 {
-                  try{
-                    $$ = get<0>($2);
-                  } catch(bad_variant_access&){
-                    $$ = get<1>($2);
+                  if (holds_alternative<uint64_t>($2)){
+                    $$ = -get<0>($2);
+                  } else {
+                    $$ = -get<1>($2);
                   }
                 }
   | num
                 {
-                  try{
+                  if (holds_alternative<uint64_t>($1)){
                     $$ = get<0>($1);
-                  } catch(bad_variant_access&){
+                  } else {
                     $$ = get<1>($1);
                   }
                 }
