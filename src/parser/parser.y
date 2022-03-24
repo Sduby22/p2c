@@ -139,7 +139,7 @@
 %type <BasicType> basic_type
 %type <vector<tuple<int, int>>> period
 %type <vector<string>> idlist
-%type <variant<uint64_t, float, bool, char>> const_value
+%type <variant<uint64_t, float, char>> const_value
 %%
 
 // ========== 语法规则 & 语义动作定义区 ===========
@@ -175,16 +175,6 @@ program_head:
 
 program_body:
   const_declarations var_declarations subprogram_declarations compound_statement
-                {
-                  $$ = nullptr;
-                };
-
-idlist:
-  idlist COMMA IDENTIFIER
-                {
-                  $$ = nullptr;
-                }
-  | IDENTIFIER
                 {
                   $$ = nullptr;
                 };
@@ -459,132 +449,147 @@ factor:
                   $$ = nullptr;
                 };
 
+idlist:
+  idlist COMMA IDENTIFIER
+                {
+                  $$ = move($1);
+                  $$.push_back($3);
+                }
+  | IDENTIFIER
+                {
+                  $$ = vector<string>{};
+                  $$.push_back($1);
+                };
+
 num:
   CONST_INT
                 {
-                  $$ = nullptr;
+                  $$ = $1;
                 }
   | CONST_REAL
                 {
-                  $$ = nullptr;
+                  $$ = $1;
                 };
 
 addop:
   ADD
                 {
-                  $$ = nullptr;
+                  $$ = Operator::ADD;
                 }
   | MINUS
                 {
-                  $$ = nullptr;
+                  $$ = Operator::MINUS;
                 }
   | OR
                 {
-                  $$ = nullptr;
+                  $$ = Operator::OR;
                 };
 
 mulop:
   STAR
                 {
-                  $$ = nullptr;
+                  $$ = Operator::STAR;
                 }
   | SLASH
                 {
-                  $$ = nullptr;
+                  $$ = Operator::SLASH;
                 }
   | DIV
                 {
-                  $$ = nullptr;
+                  $$ = Operator::DIV;
                 }
   | MOD
                 {
-                  $$ = nullptr;
+                  $$ = Operator::MOD;
                 }
   | AND
                 {
-                  $$ = nullptr;
+                  $$ = Operator::AND;
                 };
 
 relop:
   GREATER_THAN
                 {
-                  $$ = nullptr;
+                  $$ = Operator::GREATER_THAN;
                 }
   | LESS_THAN
                 {
-                  $$ = nullptr;
+                  $$ = Operator::LESS_THAN;
                 }
   | GREATER_EQUAL
                 {
-                  $$ = nullptr;
+                  $$ = Operator::GREATER_EQUAL;
                 }
   | LESS_EQUAL
                 {
-                  $$ = nullptr;
+                  $$ = Operator::LESS_EQUAL;
                 }
   | EQUAL
                 {
-                  $$ = nullptr;
+                  $$ = Operator::EQUAL;
                 }
   | NOT_EQUAL
                 {
-                  $$ = nullptr;
+                  $$ = Operator::NOT_EQUAL;
                 };
 
 type:
   basic_type
                 {
-                  $$ = nullptr;
+                  $$ = $1;
                 }
   | ARRAY LSQUARE_BRACKET period RSQUARE_BRACKET OF basic_type
                 {
-                  $$ = nullptr;
+                  ArrayType arrayType = {$6, $3};
+                  $$ = arrayType;
                 };
 
 basic_type:
   INTEGER
                 {
-                  $$ = nullptr;
+                  $$ = BasicType::INTEGER;
                 }
   | REAL
                 {
-                  $$ = nullptr;
+                  $$ = BasicType::REAL;
                 }
   | BOOLEAN
                 {
-                  $$ = nullptr;
+                  $$ = BasicType::BOOLEAN;
                 }
   | CHAR
                 {
-                  $$ = nullptr;
+                  $$ = BasicType::CHAR;
                 };
 
 period:
   period COMMA CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  $$.push_back({$3, $5});
                 }
   | CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT
                 {
-                  $$ = nullptr;
+                  $$ = vector<tuple<int, int>>{};
+                  $$.push_back({$1, $3});
                 };
 
 const_value:
   ADD num
                 {
-                  $$ = nullptr;
+                  visit([&](auto &val) { $$ = val; }, $2);
                 }
   | MINUS num
                 {
-                  $$ = nullptr;
+                  visit([&](auto &val) { $$ = -val; }, $2);
                 }
   | num
                 {
-                  $$ = nullptr;
+                  visit([&](auto &val) { $$ = val; }, $1);
                 }
   | CONST_CHAR
                 {
-                  $$ = nullptr;
+                  $$ = $1;
                 };
 
 %%
