@@ -139,7 +139,7 @@
 %type <BasicType> basic_type
 %type <vector<tuple<int, int>>> period
 %type <vector<string>> idlist
-%type <variant<uint64_t, float, bool, char>> const_value
+%type <variant<uint64_t, float, char>> const_value
 %%
 
 // ========== 语法规则 & 语义动作定义区 ===========
@@ -177,18 +177,6 @@ program_body:
   const_declarations var_declarations subprogram_declarations compound_statement
                 {
                   $$ = nullptr;
-                };
-
-idlist:
-  idlist COMMA IDENTIFIER
-                {
-                  $$ = move($1);
-                  $$.push_back($3);
-                }
-  | IDENTIFIER
-                {
-                  $$ = vector<string>{};
-                  $$.push_back($1);
                 };
 
 const_declarations:
@@ -461,6 +449,18 @@ factor:
                   $$ = nullptr;
                 };
 
+idlist:
+  idlist COMMA IDENTIFIER
+                {
+                  $$ = move($1);
+                  $$.push_back($3);
+                }
+  | IDENTIFIER
+                {
+                  $$ = vector<string>{};
+                  $$.push_back($1);
+                };
+
 num:
   CONST_INT
                 {
@@ -577,27 +577,15 @@ period:
 const_value:
   ADD num
                 {
-                  if (holds_alternative<uint64_t>($2)){
-                    $$ = get<0>($2);
-                  } else {
-                    $$ = get<1>($2);
-                  }
+                  visit([&](auto &val) { $$ = val; }, $2);
                 }
   | MINUS num
                 {
-                  if (holds_alternative<uint64_t>($2)){
-                    $$ = -get<0>($2);
-                  } else {
-                    $$ = -get<1>($2);
-                  }
+                  visit([&](auto &val) { $$ = -val; }, $2);
                 }
   | num
                 {
-                  if (holds_alternative<uint64_t>($1)){
-                    $$ = get<0>($1);
-                  } else {
-                    $$ = get<1>($1);
-                  }
+                  visit([&](auto &val) { $$ = val; }, $1);
                 }
   | CONST_CHAR
                 {
