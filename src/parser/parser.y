@@ -139,7 +139,7 @@
 %type <BasicType> basic_type
 %type <vector<tuple<int, int>>> period
 %type <vector<string>> idlist
-%type <variant<uint64_t, float, char>> const_value
+%type <variant<int64_t, float, char>> const_value
 %%
 
 // ========== 语法规则 & 语义动作定义区 ===========
@@ -577,15 +577,36 @@ period:
 const_value:
   ADD num
                 {
-                  visit([&](auto &val) { $$ = val; }, $2);
+                  visit([&](auto &val) { 
+                    using T = decay_t<decltype(val)>;
+                    if constexpr (std::is_same_v<T, uint64_t>) {
+                      $$ = static_cast<int64_t>(val);
+                    } else {
+                      $$ = val;
+                    }
+                  }, $2);
                 }
   | MINUS num
                 {
-                  visit([&](auto &val) { $$ = -val; }, $2);
+                  visit([&](auto &val) { 
+                    using T = decay_t<decltype(val)>;
+                    if constexpr (std::is_same_v<T, uint64_t>) {
+                      $$ = -static_cast<int64_t>(val);
+                    } else {
+                      $$ = -val;
+                    }
+                  }, $2);
                 }
   | num
                 {
-                  visit([&](auto &val) { $$ = val; }, $1);
+                  visit([&](auto &val) { 
+                    using T = decay_t<decltype(val)>;
+                    if constexpr (std::is_same_v<T, uint64_t>) {
+                      $$ = static_cast<int64_t>(val);
+                    } else {
+                      $$ = val;
+                    }
+                  }, $1);
                 }
   | CONST_CHAR
                 {
