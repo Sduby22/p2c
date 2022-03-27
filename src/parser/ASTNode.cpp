@@ -31,4 +31,166 @@ namespace p2c {
     child->_parent = this;
     _childs.push_back(move(child));
   }
+  
+
+  /* expression_list node */ 
+  const string& ExpressionList::_getName() {
+    static string name = "ExpressionList";
+    return name;
+  }
+
+  string ExpressionList::_infoStr() {
+    return "";
+  }
+
+  string ExpressionList::genCCode() {
+    string res;
+    for (auto& exp: _childs) {
+      res += exp->genCCode() += ", ";
+    }
+    res.erase(res.end()-2, res.end()-1);
+    return res;
+  }
+
+  
+  /* expression node */ 
+  const string& Expression::_getName() {
+    static string name = "Expression";
+    return name;
+  }
+
+  string Expression::_infoStr() {
+    return "";
+  }
+
+  string Expression::genCCode() {
+    string res = _childs.front()->genCCode();
+    if (_childs.size() == 2) {
+      switch (relop) {
+        case Operator::GREATER_THAN :
+          res += " > ";
+          break;
+        case Operator::LESS_THAN :
+          res += " < ";
+          break;
+        case Operator::GREATER_EQUAL :
+          res += " >= ";
+          break;
+        case Operator::LESS_EQUAL :
+          res += " <= ";
+          break;         
+        case Operator::EQUAL :
+          res += " == ";
+          break;
+        case Operator::NOT_EQUAL :
+          res += " != ";
+          break;
+      }
+      res += _childs.back()->genCCode();
+    }
+    return res;
+  }
+
+  
+  /* simple_expression node */ 
+  const string& SimpleExpression::_getName() {
+    static string name = "SimpleExpression";
+    return name;
+  }
+
+  string SimpleExpression::_infoStr() {
+    return "";
+  }
+
+  string SimpleExpression::genCCode() {
+    string res;
+    for (auto& term: _childs) {
+      res += term->genCCode();
+      if ( !addops.empty() ) {
+        switch (addops.front()) {
+          case Operator::ADD :
+            res += " + ";
+            break;
+          case Operator::MINUS :
+            res += " - ";
+            break;
+          case Operator::OR :
+            res += " || ";
+            break;
+        }
+        addops.pop();
+      }
+    }
+    return res;
+  }
+
+  
+  /* term node */ 
+  const string& Term::_getName() {
+    static string name = "Term";
+    return name;
+  }
+
+  string Term::_infoStr() {
+    return "";
+  }
+
+  string Term::genCCode() {
+    string res;
+    for (auto& factor: _childs) {
+      res += factor->genCCode();
+      if ( !mulops.empty() ) {
+        switch (mulops.front()) {
+          case Operator::STAR :
+            res += "*";
+            break;
+          case Operator::SLASH :
+            res += "/";
+            break;
+          case Operator::DIV :
+            res += "/";
+            break;
+          case Operator::MOD :
+            res += "%";
+            break;
+          case Operator::AND :
+            res += "&&";
+            break;
+        }
+        mulops.pop();
+      }
+    }
+    return res;
+  }
+
+  
+  /* Factor node */ 
+  const string& Factor::_getName() {
+    static string name = "Factor";
+    return name;
+  }
+
+  string Factor::_infoStr() {
+    return fmt::format("type: {}", type);
+  }
+
+  string Factor::genCCode() {
+    switch (type) {
+      case 1 :  //num <-> value
+        return value;
+      case 2 :  // variable <-> _childs
+        return _childs.front()->genCCode();
+      case 3 :  // id (expression_list) <-> id:value, exp:_childs
+        return value + " (" + _childs.front()->genCCode() + ") ";
+      case 4 :  // (expression) <-> _childs
+        return " (" + _childs.front()->genCCode() + ") ";
+      case 5 :  // not factor <-> _childs
+        return " !" + _childs.front()->genCCode();
+      case 6 :  //uminus factor <-> _childs
+        return " -" + _childs.front()->genCCode();  
+      default:
+        return "";
+    }
+  }
+
 } // namespace p2c

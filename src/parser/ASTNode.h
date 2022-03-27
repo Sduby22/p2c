@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <queue>
 
 using namespace std;
 namespace p2c {
@@ -39,6 +40,8 @@ struct ArrayType {
   std::vector<std::tuple<int, int>> dimensions;
 };
 
+
+/* ASTNode */
 class ASTNode {
 public:
   virtual ~ASTNode() = default;
@@ -58,6 +61,67 @@ private:
   virtual void _printNode(int level, std::string &str);
 };
 
+
+/* expression_list node */
+class ExpressionList: public ASTNode {
+public:
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* expression node */
+class Expression: public ASTNode {
+public:
+  Operator relop;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* simple_expression node */
+class SimpleExpression: public ASTNode {
+public:
+  queue<Operator> addops;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* term node */
+class Term: public ASTNode {
+public:
+  queue<Operator> mulops;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* Factor node */
+class Factor: public ASTNode {
+public:
+  int type;
+  string value;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+//
 template <typename NodeT, typename... Args>
 std::unique_ptr<ASTNode> make_Node(Args &&...args) {
   return std::make_unique<NodeT>(std::forward(args)...);

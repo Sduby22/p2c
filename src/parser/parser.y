@@ -125,11 +125,11 @@
 %type <unique_ptr<ASTNode>> variable
 %type <unique_ptr<ASTNode>> id_varpart
 %type <unique_ptr<ASTNode>> procedure_call
-%type <unique_ptr<ASTNode>> expression_list
-%type <unique_ptr<ASTNode>> expression
-%type <unique_ptr<ASTNode>> simple_expression
-%type <unique_ptr<ASTNode>> term
-%type <unique_ptr<ASTNode>> factor
+%type <unique_ptr<ExpressionList>> expression_list
+%type <unique_ptr<Expression>> expression
+%type <unique_ptr<SimpleExpression>> simple_expression
+%type <unique_ptr<Term>> term
+%type <unique_ptr<Factor>> factor
 
 %type <variant<uint64_t, float>> num
 %type <Operator> relop
@@ -155,6 +155,9 @@
 
 // 注：先把ppt上的生成式抄下来，暂时不管二义性的问题。
 // 有些二义性可以通过bison的运算符优先级来解决。
+
+
+
 programstruct:
   program_head SEMICOLON program_body DOT
   /* CONST_INT CONST_REAL CONST_BOOL CONST_CHAR IDENTIFIER */
@@ -386,67 +389,111 @@ procedure_call:
 expression_list:
   expression_list COMMA expression
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  $$->appendChild(move($3));
+                  logger.debug($$->printNode());
                 }
   | expression
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<ExpressionList>();
+                  $$->appendChild(move($1));
+                  logger.debug($$->printNode());
                 };
 
 expression:
   simple_expression relop simple_expression
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Expression>();
+                  $$->relop = move($2);
+                  $$->appendChild(move($1));
+                  $$->appendChild(move($3));
+                  logger.debug($$->printNode());
                 }
   | simple_expression
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Expression>();
+                  $$->appendChild(move($1));
+                  logger.debug($$->printNode());
                 };
 
 simple_expression:
   simple_expression addop term
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  $$->addops.push(move($2));
+                  $$->appendChild(move($3));
+                  logger.debug($$->printNode());
                 }
   | term
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<SimpleExpression>();
+                  $$->appendChild(move($1));
+                  logger.debug($$->printNode());
                 };
 
 term:
   term mulop factor
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  $$->mulops.push(move($2));
+                  $$->appendChild(move($3));
+                  logger.debug($$->printNode());
                 }
   | factor
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Term>();
+                  $$->appendChild(move($1));
+                  logger.debug($$->printNode());
                 };
 
 factor:
   num
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Factor>();
+                  $$->type = 1;
+                  if (holds_alternative<uint64_t>($1)){
+                    $$->value = to_string(get<0>($1));
+                  }
+                  else{
+                    $$->value = to_string(get<1>($1));
+                  }
+                  logger.debug($$->printNode());
                 }
   | variable
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Factor>();
+                  $$->type = 2;
+                  $$->appendChild(move($1));
+                  logger.debug($$->printNode());
                 }
   | IDENTIFIER LBRACKET expression_list RBRACKET
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Factor>();
+                  $$->type = 3;
+                  $$->value = $1;
+                  $$->appendChild(move($3));
+                  logger.debug($$->printNode());
                 }
   | LBRACKET expression RBRACKET
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Factor>();
+                  $$->type = 4;
+                  $$->appendChild(move($2));
+                  logger.debug($$->printNode());
                 }
   | NOT factor
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Factor>();
+                  $$->type = 5;
+                  $$->appendChild(move($2));
+                  logger.debug($$->printNode());
                 }
   | MINUS factor
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Factor>();
+                  $$->type = 6;
+                  $$->appendChild(move($2));
+                  logger.debug($$->printNode());
                 };
 
 idlist:
@@ -472,7 +519,7 @@ num:
                 };
 
 addop:
-  ADD
+  ADD                
                 {
                   $$ = Operator::ADD;
                 }
