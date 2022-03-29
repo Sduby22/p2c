@@ -354,13 +354,11 @@ variable_list:
                 {
                   $$ = move($1);
                   $$->appendChild(move($3));
-                  logger.debug($$->printNode());
                 }
   | variable
                 {
                   $$ = make_unique<VariableList>();
                   $$->appendChild(move($1));
-                  logger.debug($$->printNode());
                 };
 
 variable:
@@ -369,7 +367,6 @@ variable:
                   $$ = make_unique<Variable>();
                   $$->identifier = move($1);
                   $$->appendChild(move($2));
-                  logger.debug($$->printNode());
                 };
 
 id_varpart:
@@ -378,13 +375,11 @@ id_varpart:
                   $$ = make_unique<IdVarpart>();
                   $$->appendChild(move($2));
                   $$->isEmpty = false;
-                  logger.debug($$->printNode());
                 }
   |  /* %empty */
                 {
                   $$ = make_unique<IdVarpart>();
                   $$->isEmpty = true;
-                  logger.debug($$->printNode());
                 };
 
 procedure_call:
@@ -402,13 +397,11 @@ expression_list:
                 {
                   $$ = move($1);
                   $$->appendChild(move($3));
-                  logger.debug($$->printNode());
                 }
   | expression
                 {
                   $$ = make_unique<ExpressionList>();
                   $$->appendChild(move($1));
-                  logger.debug($$->printNode());
                 };
 
 expression:
@@ -418,13 +411,11 @@ expression:
                   $$->relop = move($2);
                   $$->appendChild(move($1));
                   $$->appendChild(move($3));
-                  logger.debug($$->printNode());
                 }
   | simple_expression
                 {
                   $$ = make_unique<Expression>();
                   $$->appendChild(move($1));
-                  logger.debug($$->printNode());
                 };
 
 simple_expression:
@@ -433,13 +424,11 @@ simple_expression:
                   $$ = move($1);
                   $$->addops.push(move($2));
                   $$->appendChild(move($3));
-                  logger.debug($$->printNode());
                 }
   | term
                 {
                   $$ = make_unique<SimpleExpression>();
                   $$->appendChild(move($1));
-                  logger.debug($$->printNode());
                 };
 
 term:
@@ -448,13 +437,11 @@ term:
                   $$ = move($1);
                   $$->mulops.push(move($2));
                   $$->appendChild(move($3));
-                  logger.debug($$->printNode());
                 }
   | factor
                 {
                   $$ = make_unique<Term>();
                   $$->appendChild(move($1));
-                  logger.debug($$->printNode());
                 };
 
 factor:
@@ -468,14 +455,12 @@ factor:
                   else{
                     $$->value = to_string(get<1>($1));
                   }
-                  logger.debug($$->printNode());
                 }
   | variable
                 {
                   $$ = make_unique<Factor>();
                   $$->type = 2;
                   $$->appendChild(move($1));
-                  logger.debug($$->printNode());
                 }
   | IDENTIFIER LBRACKET expression_list RBRACKET
                 {
@@ -483,28 +468,24 @@ factor:
                   $$->type = 3;
                   $$->value = $1;
                   $$->appendChild(move($3));
-                  logger.debug($$->printNode());
                 }
   | LBRACKET expression RBRACKET
                 {
                   $$ = make_unique<Factor>();
                   $$->type = 4;
                   $$->appendChild(move($2));
-                  logger.debug($$->printNode());
                 }
   | NOT factor
                 {
                   $$ = make_unique<Factor>();
                   $$->type = 5;
                   $$->appendChild(move($2));
-                  logger.debug($$->printNode());
                 }
   | MINUS factor
                 {
                   $$ = make_unique<Factor>();
                   $$->type = 6;
                   $$->appendChild(move($2));
-                  logger.debug($$->printNode());
                 };
 
 idlist:
