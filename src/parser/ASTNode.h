@@ -121,6 +121,42 @@ private:
   virtual std::string _infoStr();
 };
 
+
+/* variable_list node */
+class VariableList: public ASTNode {
+public:
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* variable node */
+class Variable: public ASTNode {
+public:
+  string identifier;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* id_varpart node */
+class IdVarpart: public ASTNode {
+public:
+  bool isEmpty;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
 //
 template <typename NodeT, typename... Args>
 std::unique_ptr<ASTNode> make_Node(Args &&...args) {

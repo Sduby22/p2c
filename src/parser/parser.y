@@ -121,9 +121,9 @@
 %type <unique_ptr<ASTNode>> compound_statement
 %type <unique_ptr<ASTNode>> statement
 %type <unique_ptr<ASTNode>> statement_list
-%type <unique_ptr<ASTNode>> variable_list
-%type <unique_ptr<ASTNode>> variable
-%type <unique_ptr<ASTNode>> id_varpart
+%type <unique_ptr<VariableList>> variable_list
+%type <unique_ptr<Variable>> variable
+%type <unique_ptr<IdVarpart>> id_varpart
 %type <unique_ptr<ASTNode>> procedure_call
 %type <unique_ptr<ExpressionList>> expression_list
 %type <unique_ptr<Expression>> expression
@@ -155,7 +155,6 @@
 
 // 注：先把ppt上的生成式抄下来，暂时不管二义性的问题。
 // 有些二义性可以通过bison的运算符优先级来解决。
-
 
 
 programstruct:
@@ -353,27 +352,39 @@ statement:
 variable_list:
   variable_list COMMA variable
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  $$->appendChild(move($3));
+                  logger.debug($$->printNode());
                 }
   | variable
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<VariableList>();
+                  $$->appendChild(move($1));
+                  logger.debug($$->printNode());
                 };
 
 variable:
   IDENTIFIER id_varpart
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Variable>();
+                  $$->identifier = move($1);
+                  $$->appendChild(move($2));
+                  logger.debug($$->printNode());
                 };
 
 id_varpart:
-  LSQUARE_BRACKET expression_list RSQUARE_BRACKET
+  LSQUARE_BRACKET expression_list RSQUARE_BRACKET //access expression-node directly
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<IdVarpart>();
+                  $$->appendChild(move($2));
+                  $$->isEmpty = false;
+                  logger.debug($$->printNode());
                 }
   |  /* %empty */
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<IdVarpart>();
+                  $$->isEmpty = true;
+                  logger.debug($$->printNode());
                 };
 
 procedure_call:
