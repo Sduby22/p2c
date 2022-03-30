@@ -1,5 +1,6 @@
 #include "ASTNode.h"
 #include "spdlog/fmt/fmt.h"
+#include <vector>
 
 namespace p2c {
   using namespace std;
@@ -31,27 +32,7 @@ namespace p2c {
     child->_parent = this;
     _childs.push_back(move(child));
   }
-  
-
-  /* expression_list node */ 
-  const string& ExpressionList::_getName() {
-    static string name = "ExpressionList";
-    return name;
-  }
-
-  string ExpressionList::_infoStr() {
-    return "";
-  }
-
-  string ExpressionList::genCCode() {
-    string res;
-    for (auto& exp: _childs) {
-      res += exp->genCCode() += ", ";
-    }
-    res.erase(res.end()-2, res.end());
-    return res;
-  }
-
+ 
   
   /* expression node */ 
   const string& Expression::_getName() {
@@ -181,7 +162,15 @@ namespace p2c {
       case 2 :  // variable <-> _childs
         return _childs.front()->genCCode();
       case 3 :  // id (expression_list) <-> id:value, exp:_childs
-        return value + "(" + _childs.front()->genCCode() + ")";
+        {
+          string res = value + "(";
+          for (auto& expression: _childs) {
+            res += expression->genCCode() += ", ";
+          }
+          res.erase(res.end()-2, res.end());
+          res += ")";
+          return res;
+        }
       case 4 :  // (expression) <-> _childs
         return "(" + _childs.front()->genCCode() + ")";
       case 5 :  // not factor <-> _childs
@@ -243,18 +232,136 @@ namespace p2c {
     if (isEmpty) {
       return "";
     }
-    string res = "[" + _childs.front()->genCCode() + "]";
-    int flag = 0;
-    for (auto& ch: res) {
-      if (flag == 1){
-        ch = '[';
-        flag = 0;
-      } else if (ch == ',') {
-        ch = ']';
-        flag = 1;        
-      }  
+    string res = "[";
+    for (auto& expression: _childs) {
+      res += expression->genCCode() += "][";
     }
+    res.erase(res.end()-1);
     return res; 
+  }
+  
+
+  /* statement_list node */ 
+  const string& StatementList::_getName() {
+    static string name = "StatementList";
+    return name;
+  }
+
+  string StatementList::_infoStr() {
+    return "";
+  }
+
+  string StatementList::genCCode() {
+    string res;
+    for (auto& statement: _childs) {
+      res += statement->genCCode();
+    }
+    return res + "\n";  
+  }
+
+  
+  /* statement node */ 
+  const string& Statement::_getName() {
+    static string name = "Statement";
+    return name;
+  }
+
+  string Statement::_infoStr() {
+    return fmt::format("type: {}", type_name);
+  }
+
+  string Statement::genCCode() {
+    switch (type) {
+      case 1 :  //variable ASSIGN expression
+        return _childs.front()->genCCode() + " = " + _childs.back()->genCCode() + ";\n";
+      case 2 :  // procedure_call
+        return _childs.front()->genCCode() + ";\n";
+      case 3 :  // compound_statement
+        return _childs.front()->genCCode();
+      case 4 :  // IF expression THEN statement ELSE statement
+        return "if (" + _childs[0]->genCCode() + ") {\n"
+             + _childs[1]->genCCode() + "}\nelse {\n" + _childs[2]->genCCode() + "}\n";
+      case 5 :  // IF expression THEN statement 
+        return "if (" + _childs[0]->genCCode() + ") {\n" + _childs[1]->genCCode() + "}\n";
+      case 6 :  // FOR IDENTIFIER ASSIGN expression TO expression DO statement
+        return "for (" + type_info + " = " + _childs[0]->genCCode() + "; " 
+             + type_info + " <= " + _childs[1]->genCCode() + "; " + type_info + "++) {\n"  
+             + _childs[2]->genCCode() + "\n}\n"; 
+      case 7 :  // READ LBRACKET variable_list RBRACKET
+        {
+          string var_list = _childs.front()->genCCode();
+          int pos = 0, count = 1;
+          var_list.insert(pos, "&");
+          while (var_list.find(", ", pos) != var_list.npos) {
+            pos = var_list.find(", ", pos) + 2;
+            var_list.insert(pos, "&");  
+            count++;
+        }
+        string res = "scanf(\"";
+        for (int i = 0; i < count; i++) {
+          res += "%d ";  //******
+        }
+        res.erase(res.end()-1);
+        res += "\", " + var_list +");\n";
+        return res;
+        }  
+      case 8 :  // WRITE LBRACKET expression_list RBRACKET
+        {     
+          string res = "printf(\""; 
+          for (int i = 0; i < _childs.size(); i++) {
+            res += "%d "; //******
+          }
+          res.erase(res.end()-1);
+          res += "\", ";
+          for (auto& expression: _childs) {
+            res += expression->genCCode() += ", ";
+          }
+          res.erase(res.end()-2, res.end());
+          res += ");\n";
+          return res;
+        }
+      default: //case 9: empty
+        return "";
+    }
+  }
+
+
+  /* procedure_call  node */ 
+  const string& ProcedureCall::_getName() {
+    static string name = "ProcedureCall";
+    return name;
+  }
+
+  string ProcedureCall::_infoStr() {
+    return "";
+  }
+
+  string ProcedureCall::genCCode() {
+    if (_childs.size() == 0) {
+      return identifier;
+    }
+    string res = identifier + "(";
+    for (auto& expression: _childs) {
+      res += expression->genCCode() += ", ";
+    }
+    res.erase(res.end()-2, res.end());
+    res += ")";
+    return res; 
+  }
+
+
+  /* compound_statement node */ 
+  const string& CompoundStatement::_getName() {
+    static string name = "CompoundStatement";
+    return name;
+  }
+
+  string CompoundStatement::_infoStr() {
+    return "";
+  }
+
+  string CompoundStatement::genCCode() {
+    return _childs.front()->genCCode() + "\n";
   }
 
 

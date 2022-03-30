@@ -62,17 +62,6 @@ private:
 };
 
 
-/* expression_list node */
-class ExpressionList: public ASTNode {
-public:
-  virtual std::string genCCode();
-
-private:
-  virtual const std::string &_getName();
-  virtual std::string _infoStr();
-};
-
-
 /* expression node */
 class Expression: public ASTNode {
 public:
@@ -149,6 +138,55 @@ private:
 class IdVarpart: public ASTNode {
 public:
   bool isEmpty;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* statement_list node */
+class StatementList: public ASTNode {
+public:
+  vector<string>statement_list;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* statement node */
+class Statement: public ASTNode {
+public:
+  int type;
+  string type_name;
+  string type_info;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* procedure_call node */
+class ProcedureCall : public ASTNode {
+public:
+  string identifier;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* compound_statement node */
+class CompoundStatement  : public ASTNode {
+public:
   virtual std::string genCCode();
 
 private:

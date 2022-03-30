@@ -118,14 +118,14 @@
 %type <unique_ptr<ASTNode>> var_parameter
 %type <unique_ptr<ASTNode>> value_parameter
 %type <unique_ptr<ASTNode>> subprogram_body
-%type <unique_ptr<ASTNode>> compound_statement
-%type <unique_ptr<ASTNode>> statement
-%type <unique_ptr<ASTNode>> statement_list
+%type <unique_ptr<CompoundStatement>> compound_statement
+%type <unique_ptr<Statement>> statement
+%type <unique_ptr<StatementList>> statement_list
 %type <unique_ptr<VariableList>> variable_list
 %type <unique_ptr<Variable>> variable
 %type <unique_ptr<IdVarpart>> id_varpart
-%type <unique_ptr<ASTNode>> procedure_call
-%type <unique_ptr<ExpressionList>> expression_list
+%type <unique_ptr<ProcedureCall>> procedure_call
+%type <vector<unique_ptr<Expression>>> expression_list
 %type <unique_ptr<Expression>> expression
 %type <unique_ptr<SimpleExpression>> simple_expression
 %type <unique_ptr<Term>> term
@@ -298,55 +298,105 @@ subprogram_body:
 compound_statement:
   BEGIN statement_list END
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<CompoundStatement>();
+                  $$->appendChild(move($2));
+                  logger.debug($$->printNode());
                 };
 
 statement_list:
   statement_list SEMICOLON statement
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  $$->appendChild(move($3));
+                  logger.debug($$->printNode());
                 }
   | statement
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<StatementList>();
+                  $$->appendChild(move($1));
+                  logger.debug($$->printNode());
                 };
 
 statement:
   variable ASSIGN expression
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Statement>();
+                  $$->appendChild(move($1));
+                  $$->appendChild(move($3));
+                  $$->type = 1;
+                  $$->type_name = "var_assign";
+                  logger.debug($$->printNode());
                 }
   | procedure_call
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Statement>();
+                  $$->appendChild(move($1));
+                  $$->type = 2;
+                  $$->type_name = "procedure_call";
+                  logger.debug($$->printNode());
                 }
   | compound_statement
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Statement>();
+                  $$->appendChild(move($1));
+                  $$->type = 3;
+                  $$->type_name = "compound_statement";
+                  logger.debug($$->printNode());
                 }
   | IF expression THEN statement ELSE statement
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Statement>();
+                  $$->appendChild(move($2));
+                  $$->appendChild(move($4));
+                  $$->appendChild(move($6));
+                  $$->type = 4;
+                  $$->type_name = "if_else_else";
+                  logger.debug($$->printNode());
                 }
   | IF expression THEN statement 
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Statement>();
+                  $$->appendChild(move($2));
+                  $$->appendChild(move($4));
+                  $$->type = 5;
+                  $$->type_name = "if_else";
+                  logger.debug($$->printNode());
                 }
   | FOR IDENTIFIER ASSIGN expression TO expression DO statement
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Statement>();
+                  $$->appendChild(move($4));
+                  $$->appendChild(move($6));
+                  $$->appendChild(move($8));
+                  $$->type = 6;
+                  $$->type_name = "for_loop";
+                  $$->type_info = move($2);
+                  logger.debug($$->printNode());
                 }
   | READ LBRACKET variable_list RBRACKET
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Statement>();
+                  $$->appendChild(move($3));
+                  $$->type = 7;
+                  $$->type_name = "read";
+                  logger.debug($$->printNode());
                 }
   | WRITE LBRACKET expression_list RBRACKET
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Statement>();
+                  for (auto& expression: $3) {
+                    $$->appendChild(move(expression));
+                  }
+                  $$->type = 8;
+                  $$->type_name = "write";
+                  logger.debug($$->printNode());
                 }
-  | /* %empty */
+  |   /*empty*/
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Statement>();
+                  $$->type = 9;
+                  $$->type_name = "empty";
+                  logger.debug($$->printNode());
                 };
 
 variable_list:
@@ -376,7 +426,9 @@ id_varpart:
   LSQUARE_BRACKET expression_list RSQUARE_BRACKET //access expression-node directly
                 {
                   $$ = make_unique<IdVarpart>();
-                  $$->appendChild(move($2));
+                  for (auto& expression: $2) {
+                    $$->appendChild(move(expression));
+                  }
                   $$->isEmpty = false;
                   logger.debug($$->printNode());
                 }
@@ -390,25 +442,32 @@ id_varpart:
 procedure_call:
   IDENTIFIER
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<ProcedureCall>();
+                  $$->identifier = move($1);
+                  logger.debug($$->printNode());
                 }
   | IDENTIFIER LBRACKET expression_list RBRACKET
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<ProcedureCall>();
+                  $$->identifier = move($1);
+                  for (auto& expression: $3) {
+                    $$->appendChild(move(expression));
+                  }
+                  logger.debug($$->printNode());
                 };
 
 expression_list:
   expression_list COMMA expression
                 {
                   $$ = move($1);
-                  $$->appendChild(move($3));
-                  logger.debug($$->printNode());
+                  $$.push_back(move($3));
+                  logger.debug("<expression-list>");
                 }
   | expression
                 {
-                  $$ = make_unique<ExpressionList>();
-                  $$->appendChild(move($1));
-                  logger.debug($$->printNode());
+                  $$ = vector<unique_ptr<Expression>>{};
+                  $$.push_back(move($1));
+                  logger.debug("<expression-list>");
                 };
 
 expression:
@@ -482,7 +541,9 @@ factor:
                   $$ = make_unique<Factor>();
                   $$->type = 3;
                   $$->value = $1;
-                  $$->appendChild(move($3));
+                  for (auto& expression: $3) {
+                    $$->appendChild(move(expression));
+                  }
                   logger.debug($$->printNode());
                 }
   | LBRACKET expression RBRACKET
