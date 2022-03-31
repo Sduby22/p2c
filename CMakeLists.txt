@@ -22,8 +22,8 @@ if (BUILD_TESTING)
   include(CTest)
   include(Catch)
 
-  add_executable(test_main tests/test_main.cpp tests/test_example.cpp)
-  target_link_libraries(test_main Catch2::Catch2)
+  add_executable(test_main tests/test_main.cpp tests/test_example.cpp tests/test_lexer.cpp)
+  target_link_libraries(test_main Catch2::Catch2 parser)
 
   catch_discover_tests(test_main)
 endif()
