@@ -4,7 +4,7 @@
 using namespace p2c;
 using namespace std;
 
-Driver::Driver() : _scanner(*this), _parser(_scanner, *this) {}
+Driver::Driver() : _scanner(), _parser(_scanner) {}
 
 Driver::~Driver() {}
 

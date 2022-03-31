@@ -40,7 +40,7 @@
   static auto logger = logging::getLogger("Parser");
 
   /*注意：这里的参数由%parse-param决定*/
-  static p2c::Parser::symbol_type yylex(p2c::Scanner& scanner,p2c::Driver &driver){
+  static p2c::Parser::symbol_type yylex(p2c::Scanner& scanner){
     return scanner.nextToken();
   }
   using namespace p2c;
@@ -49,11 +49,10 @@
 
 /*定义parser传给scanner的参数*/
 %lex-param { p2c::Scanner& scanner }
-%lex-param { p2c::Driver& driver }
 
 /*定义driver传给parser的参数*/
 %parse-param { p2c::Scanner& scanner }
-%parse-param { p2c::Driver& driver }
+/* %parse-param { p2c::Driver& driver } */
 
 %locations
 //%define parse-trace
