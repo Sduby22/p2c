@@ -66,13 +66,30 @@ namespace p2c {
         case Operator::NOT_EQUAL :
           res += " != ";
           break;
+        default:
+          break;
       }
       res += _childs.back()->genCCode();
     }
     return res;
   }
 
-  
+  void Expression::_printNode(int level, string &str) {
+    auto infoStr = _infoStr();
+    string indent(level * 2, ' ');
+    if (infoStr.empty())
+      str += fmt::format("{}<{}>\n", indent, _getName());
+    else
+      str += fmt::format("{}<{} {}>\n", indent, _getName(), infoStr);
+    for (auto &child : _childs) {
+      child->_printNode(level + 1, str);
+      if (child != _childs.back()) {
+        str += string((level + 1)*2, ' ') + "<Relop type: ***>\n";
+      }
+    }
+  }
+
+
   /* simple_expression node */ 
   const string& SimpleExpression::_getName() {
     static string name = "SimpleExpression";
@@ -85,10 +102,11 @@ namespace p2c {
 
   string SimpleExpression::genCCode() {
     string res;
+    int i = 0;
     for (auto& term: _childs) {
       res += term->genCCode();
-      if ( !addops.empty() ) {
-        switch (addops.front()) {
+      if (i < _childs.size()-1) {
+        switch (addops[i++]) {
           case Operator::ADD :
             res += " + ";
             break;
@@ -98,14 +116,30 @@ namespace p2c {
           case Operator::OR :
             res += " || ";
             break;
+          default:
+            break;
         }
-        addops.pop();
       }
     }
     return res;
   }
 
-  
+  void SimpleExpression::_printNode(int level, string &str) {
+    auto infoStr = _infoStr();
+    string indent(level * 2, ' ');
+    if (infoStr.empty())
+      str += fmt::format("{}<{}>\n", indent, _getName());
+    else
+      str += fmt::format("{}<{} {}>\n", indent, _getName(), infoStr);
+    for (auto &child : _childs) {
+      child->_printNode(level + 1, str);
+      if (child != _childs.back()) {
+        str += string((level + 1)*2, ' ') + "<Addlop type: ***>\n";
+      }
+    }
+  }
+
+
   /* term node */ 
   const string& Term::_getName() {
     static string name = "Term";
@@ -118,10 +152,11 @@ namespace p2c {
 
   string Term::genCCode() {
     string res;
+    int i = 0;
     for (auto& factor: _childs) {
       res += factor->genCCode();
-      if ( !mulops.empty() ) {
-        switch (mulops.front()) {
+      if (i < _childs.size()-1) {
+        switch (mulops[i++]) {
           case Operator::STAR :
             res += " * ";
             break;
@@ -137,14 +172,30 @@ namespace p2c {
           case Operator::AND :
             res += " && ";
             break;
+          default:
+            break;
         }
-        mulops.pop();
       }
     }
     return res;
   }
 
-  
+  void Term::_printNode(int level, string &str) {
+    auto infoStr = _infoStr();
+    string indent(level * 2, ' ');
+    if (infoStr.empty())
+      str += fmt::format("{}<{}>\n", indent, _getName());
+    else
+      str += fmt::format("{}<{} {}>\n", indent, _getName(), infoStr);
+    for (auto &child : _childs) {
+      child->_printNode(level + 1, str);
+      if (child != _childs.back()) {
+        str += string((level + 1)*2, ' ') + "<Mulop type: ***>\n";
+      }
+    }
+  }
+
+
   /* Factor node */ 
   const string& Factor::_getName() {
     static string name = "Factor";
@@ -152,16 +203,22 @@ namespace p2c {
   }
 
   string Factor::_infoStr() {
-    return fmt::format("type: {}", type);
+    if (type == 4) {
+      return fmt::format("type: {}", type_info);
+    }
+    else if (type == 3) {
+      return fmt::format("type: {} id: {}", type_info, value);
+    }
+    return fmt::format("type: {} value: {}", type_info, value);
   }
 
   string Factor::genCCode() {
     switch (type) {
-      case 1 :  //num <-> value
+      case 1 :  //num
         return value;
-      case 2 :  // variable <-> _childs
+      case 2 :  // variable
         return _childs.front()->genCCode();
-      case 3 :  // id (expression_list) <-> id:value, exp:_childs
+      case 3 :  // id (expression_list)
         {
           string res = value + "(";
           for (auto& expression: _childs) {
@@ -171,11 +228,11 @@ namespace p2c {
           res += ")";
           return res;
         }
-      case 4 :  // (expression) <-> _childs
+      case 4 :  // (expression)
         return "(" + _childs.front()->genCCode() + ")";
-      case 5 :  // not factor <-> _childs
+      case 5 :  // not factor
         return "!" + _childs.front()->genCCode();
-      case 6 :  //uminus factor <-> _childs
+      case 6 :  //uminus factor
         return "-" + _childs.front()->genCCode();  
       default:
         return "";
@@ -296,14 +353,14 @@ namespace p2c {
             pos = var_list.find(", ", pos) + 2;
             var_list.insert(pos, "&");  
             count++;
-        }
-        string res = "scanf(\"";
-        for (int i = 0; i < count; i++) {
-          res += "%d ";  //******
-        }
-        res.erase(res.end()-1);
-        res += "\", " + var_list +");\n";
-        return res;
+          }
+          string res = "scanf(\"";
+          for (int i = 0; i < count; i++) {
+            res += "%d ";  //******
+          }
+          res.erase(res.end()-1);
+          res += "\", " + var_list +");\n";
+          return res;
         }  
       case 8 :  // WRITE LBRACKET expression_list RBRACKET
         {     
@@ -361,7 +418,7 @@ namespace p2c {
   }
 
   string CompoundStatement::genCCode() {
-    return _childs.front()->genCCode() + "\n";
+    return "{\n" + _childs.front()->genCCode() + "\n}\n";
   }
 
 
