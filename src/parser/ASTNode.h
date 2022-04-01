@@ -195,6 +195,19 @@ private:
 };
 
 
+/* const_declaration node */
+class ConstDeclaration : public ASTNode {
+public:
+  string identifier;
+  variant<int64_t, float, char>const_value;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
 //
 template <typename NodeT, typename... Args>
 std::unique_ptr<ASTNode> make_Node(Args &&...args) {

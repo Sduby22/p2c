@@ -365,4 +365,35 @@ namespace p2c {
   }
 
 
+  /* const_declaration node */ 
+  const string& ConstDeclaration::_getName() {
+    static string name = "ConstDeclaration";
+    return name;
+  }
+
+  string ConstDeclaration::_infoStr() {
+      static string res;
+      if (holds_alternative<int64_t>(const_value)) {
+        res = fmt::format("const_id: {}, const_value: {}", identifier, get<0>(const_value));
+      } else if (holds_alternative<float>(const_value)) {
+        res = fmt::format("const_id: {}, const_value: {}", identifier, get<1>(const_value));
+      } else {
+        res = fmt::format("const_id: {}, const_value: '{}'", identifier, get<2>(const_value));
+      }
+      return res;
+  }
+
+  string ConstDeclaration::genCCode() {
+      static string res;
+      if (holds_alternative<int64_t>(const_value)) {
+        res = fmt::format("const int {} = {};\n", identifier, get<0>(const_value));
+      } else if (holds_alternative<float>(const_value)) {
+        res = fmt::format("const float {} = {};\n", identifier, get<1>(const_value));
+      } else {
+        res = fmt::format("const char {} = '{}';\n", identifier, get<2>(const_value));
+      }
+      return res;
+  }
+
+
 } // namespace p2c
