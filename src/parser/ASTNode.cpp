@@ -431,26 +431,91 @@ namespace p2c {
   }
 
   string ConstDeclaration::_infoStr() {
-      static string res;
+      string res;
       if (holds_alternative<int64_t>(const_value)) {
         res = fmt::format("const_id: {}, const_value: {}", identifier, get<0>(const_value));
       } else if (holds_alternative<float>(const_value)) {
         res = fmt::format("const_id: {}, const_value: {}", identifier, get<1>(const_value));
-      } else {
+      } else { //const char type
         res = fmt::format("const_id: {}, const_value: '{}'", identifier, get<2>(const_value));
       }
       return res;
   }
 
   string ConstDeclaration::genCCode() {
-      static string res;
+      string res;
       if (holds_alternative<int64_t>(const_value)) {
         res = fmt::format("const int {} = {};\n", identifier, get<0>(const_value));
       } else if (holds_alternative<float>(const_value)) {
         res = fmt::format("const float {} = {};\n", identifier, get<1>(const_value));
-      } else {
+      } else { //const char type
         res = fmt::format("const char {} = '{}';\n", identifier, get<2>(const_value));
       }
+      return res;
+  }
+
+
+
+  /* var_declaration node */ 
+  const string& VarDeclaration::_getName() {
+    static string name = "VarDeclaration";
+    return name;
+  }
+
+  string VarDeclaration::_infoStr() {
+      return "";
+  }
+
+  string VarDeclaration::genCCode() {
+      string res;      
+      if (holds_alternative<BasicType>(type)) {
+        switch (get<0>(type)) {
+          case BasicType::INTEGER: 
+          case BasicType::BOOLEAN:
+            res += "int ";
+            break;
+          case BasicType::REAL:
+            res += "float ";
+            break;
+          case BasicType::CHAR:
+            res += "char ";
+            break;
+          default:
+            break;
+        }
+        for (auto id : idlist)
+        {
+          res += (id+", ");
+        }
+      } else { //array type
+        switch (get<1>(type).basictype)
+        {
+          case BasicType::INTEGER: 
+          case BasicType::BOOLEAN:
+            res += "int ";
+            break;
+          case BasicType::REAL:
+            res += "float ";
+            break;
+          case BasicType::CHAR:
+            res += "char ";
+            break;
+          default:
+            break;
+        }
+        vector<std::tuple<int, int>> dimensions = get<1>(type).dimensions;
+        string dimension_str;
+        for (auto dimension : dimensions)
+        {
+          dimension_str += ("[" + to_string(get<1>(dimension)-get<0>(dimension)+1) + "]");
+        }
+        for (auto id : idlist)
+        {
+          res += (id + dimension_str + ", ");
+        }
+      }
+      res.erase(res.end()-2, res.end());
+      res += ";";
       return res;
   }
 

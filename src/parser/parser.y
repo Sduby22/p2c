@@ -106,8 +106,8 @@
 %type <unique_ptr<ASTNode>> program_body
 %type <vector<unique_ptr<ConstDeclaration>>> const_declarations
 %type <vector<unique_ptr<ConstDeclaration>>> const_declaration
-%type <unique_ptr<ASTNode>> var_declarations
-%type <unique_ptr<ASTNode>> var_declaration
+%type <vector<unique_ptr<VarDeclaration>>> var_declarations
+%type <vector<unique_ptr<VarDeclaration>>> var_declaration
 %type <unique_ptr<ASTNode>> subprogram_declarations
 %type <unique_ptr<ASTNode>> subprogram
 %type <unique_ptr<ASTNode>> subprogram_head
@@ -214,21 +214,32 @@ const_declaration:
 var_declarations:
   VAR var_declaration SEMICOLON
                 {
-                  $$ = nullptr;
+                  $$ = move($2);
+                  for (auto& declaration: $$) {
+                    logger.debug(declaration->printNode());
+                  }
                 }
   | /* %empty */
                 {
-                  $$ = nullptr;
+                  $$ = vector<unique_ptr<VarDeclaration>>{};
                 };
 
 var_declaration:
   var_declaration SEMICOLON idlist COLON type
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  auto node = make_unique<VarDeclaration>();
+                  node->idlist = move($3);
+                  node->type = move($5);
+                  $$.push_back(move(node));
                 }
   | idlist COLON type
                 {
-                  $$ = nullptr;
+                  $$ = vector<unique_ptr<VarDeclaration>>{};
+                  auto node = make_unique<VarDeclaration>();
+                  node->idlist = move($1);
+                  node->type = move($3);
+                  $$.push_back(move(node));
                 };
 
 subprogram_declarations:
