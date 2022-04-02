@@ -539,4 +539,24 @@ namespace p2c {
   }
 
 
+/* var_declarations node */ 
+  const string& VarDeclarations::_getName() {
+    static string name = "VarDeclarations";
+    return name;
+  }
+
+  string VarDeclarations::_infoStr() {
+      return "";
+  }
+
+  string VarDeclarations::genCCode() {
+      string res;
+      for (auto& vardeclaration: _childs)
+      {
+        res += vardeclaration->genCCode();
+      }
+      return res;
+  }
+
+
 } // namespace p2c

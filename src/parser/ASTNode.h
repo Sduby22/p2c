@@ -239,6 +239,17 @@ private:
 };
 
 
+/* var_declarations node */
+class VarDeclarations : public ASTNode {
+public:
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
 //
 template <typename NodeT, typename... Args>
 std::unique_ptr<ASTNode> make_Node(Args &&...args) {
