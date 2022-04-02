@@ -211,6 +211,7 @@ private:
 /* const_declarations node */
 class ConstDeclarations : public ASTNode {
 public:
+  bool isEmpty;
   virtual std::string genCCode();
 
 private:
@@ -234,6 +235,18 @@ private:
 
 /* var_declarations node */
 class VarDeclarations : public ASTNode {
+public:
+  bool isEmpty;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* subprogram_body node */
+class SubprogramBody : public ASTNode {
 public:
   virtual std::string genCCode();
 

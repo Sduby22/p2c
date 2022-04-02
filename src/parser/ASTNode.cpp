@@ -374,11 +374,11 @@ namespace p2c {
   string ConstDeclaration::_infoStr() {
       string res;
       if (holds_alternative<int64_t>(const_value)) {
-        res = fmt::format("const_id: {}, const_value: {}", identifier, get<0>(const_value));
+        res = fmt::format("id: {}, value: {}", identifier, get<0>(const_value));
       } else if (holds_alternative<float>(const_value)) {
-        res = fmt::format("const_id: {}, const_value: {}", identifier, get<1>(const_value));
+        res = fmt::format("id: {}, value: {}", identifier, get<1>(const_value));
       } else { //const char type
-        res = fmt::format("const_id: {}, const_value: '{}'", identifier, get<2>(const_value));
+        res = fmt::format("id: {}, value: '{}'", identifier, get<2>(const_value));
       }
       return res;
   }
@@ -403,7 +403,11 @@ namespace p2c {
   }
 
   string ConstDeclarations::_infoStr() {
+    if (isEmpty) {
+      return "empty";
+    } else { 
       return "";
+    }
   }
 
   string ConstDeclarations::genCCode() {
@@ -423,7 +427,30 @@ namespace p2c {
   }
 
   string VarDeclaration::_infoStr() {
-      return "";
+      string idlist_str = "",type_str;      
+      if (holds_alternative<BasicType>(type)) {
+        switch (get<0>(type)) {
+          case BasicType::INTEGER: 
+          case BasicType::BOOLEAN:
+            type_str = "int ";
+            break;
+          case BasicType::REAL:
+            type_str = "float ";
+            break;
+          case BasicType::CHAR:
+            type_str = "char ";
+            break;
+          default:
+            break;
+        }
+      } else { //array type
+        type_str = "array";
+      }
+      for (auto id: idlist)
+      {
+        idlist_str += (" " + id);
+      }
+      return fmt::format("idlist:{}, type: {}\n", idlist_str, type_str);;
   }
 
   string VarDeclaration::genCCode() {
@@ -487,7 +514,11 @@ namespace p2c {
   }
 
   string VarDeclarations::_infoStr() {
+    if (isEmpty) {
+      return "empty";
+    } else { 
       return "";
+    }
   }
 
   string VarDeclarations::genCCode() {
@@ -495,6 +526,25 @@ namespace p2c {
       for (auto& vardeclaration: _childs)
       {
         res += vardeclaration->genCCode();
+      }
+      return res;
+  }
+
+/* subprogram_body node */
+  const string& SubprogramBody::_getName() {
+    static string name = "SubprogramBody";
+    return name;
+  }
+
+  string SubprogramBody::_infoStr() {
+      return "";
+  }
+
+  string SubprogramBody::genCCode() {
+      string res;
+      for (auto& child: _childs)
+      {
+        res += child->genCCode();
       }
       return res;
   }
