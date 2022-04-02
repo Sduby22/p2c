@@ -116,7 +116,7 @@
 %type <unique_ptr<ASTNode>> parameter
 %type <unique_ptr<ASTNode>> var_parameter
 %type <unique_ptr<ASTNode>> value_parameter
-%type <unique_ptr<ASTNode>> subprogram_body
+%type <unique_ptr<SubprogramBody>> subprogram_body
 %type <unique_ptr<CompoundStatement>> compound_statement
 %type <unique_ptr<Statement>> statement
 %type <unique_ptr<StatementList>> statement_list
@@ -189,6 +189,8 @@ const_declarations:
   | /* %empty */
                 {
                   $$ = make_unique<ConstDeclarations>();
+                  $$->isEmpty = true;
+                  logger.debug($$->printNode());
                 };
 
 const_declaration:
@@ -199,6 +201,7 @@ const_declaration:
                   node->identifier = $3;
                   node->const_value = $5;
                   $$->appendChild(move(node));
+                  logger.debug($$->printNode());
                 }
   | IDENTIFIER EQUAL const_value
                 {
@@ -207,6 +210,7 @@ const_declaration:
                   node->identifier = $1;
                   node->const_value = $3;
                   $$->appendChild(move(node));
+                  logger.debug($$->printNode());
                 };
 
 var_declarations:
@@ -218,6 +222,8 @@ var_declarations:
   | /* %empty */
                 {
                   $$ = make_unique<VarDeclarations>();
+                  $$->isEmpty = true;
+                  logger.debug($$->printNode());
                 };
 
 var_declaration:
@@ -228,6 +234,7 @@ var_declaration:
                   node->idlist = move($3);
                   node->type = move($5);
                   $$->appendChild(move(node));
+                  logger.debug($$->printNode());
                 }
   | idlist COLON type
                 {
@@ -236,6 +243,7 @@ var_declaration:
                   node->idlist = move($1);
                   node->type = move($3);
                   $$->appendChild(move(node));
+                  logger.debug($$->printNode());
                 };
 
 subprogram_declarations:
@@ -309,7 +317,11 @@ value_parameter:
 subprogram_body:
   const_declarations var_declarations compound_statement
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<SubprogramBody>();
+                  $$->appendChild(move($1));
+                  $$->appendChild(move($2));
+                  $$->appendChild(move($3));
+                  logger.debug($$->printNode());
                 };
 
 compound_statement:
