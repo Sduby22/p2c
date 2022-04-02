@@ -396,6 +396,25 @@ namespace p2c {
   }
 
 
+  /* const_declarations node */ 
+  const string& ConstDeclarations::_getName() {
+    static string name = "ConstDeclarations";
+    return name;
+  }
+
+  string ConstDeclarations::_infoStr() {
+      return "";
+  }
+
+  string ConstDeclarations::genCCode() {
+      string res;
+      for (auto& constdeclaration: _childs)
+      {
+        res += constdeclaration->genCCode();
+      }
+      return res;
+  }
+
 
   /* var_declaration node */ 
   const string& VarDeclaration::_getName() {
@@ -456,7 +475,7 @@ namespace p2c {
         }
       }
       res.erase(res.end()-2, res.end());
-      res += ";";
+      res += ";\n";
       return res;
   }
 

@@ -208,6 +208,17 @@ private:
 };
 
 
+/* const_declarations node */
+class ConstDeclarations : public ASTNode {
+public:
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
 /* var_declaration node */
 class VarDeclaration : public ASTNode {
 public:
