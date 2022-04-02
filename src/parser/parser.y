@@ -104,8 +104,8 @@
 %type <unique_ptr<ASTNode>> programstruct
 %type <unique_ptr<ASTNode>> program_head
 %type <unique_ptr<ASTNode>> program_body
-%type <vector<unique_ptr<ConstDeclaration>>> const_declarations
-%type <vector<unique_ptr<ConstDeclaration>>> const_declaration
+%type <unique_ptr<ConstDeclarations>> const_declarations
+%type <unique_ptr<ConstDeclarations>> const_declaration
 %type <vector<unique_ptr<VarDeclaration>>> var_declarations
 %type <vector<unique_ptr<VarDeclaration>>> var_declaration
 %type <unique_ptr<ASTNode>> subprogram_declarations
@@ -184,13 +184,11 @@ const_declarations:
   CONST const_declaration SEMICOLON
                 {
                   $$ = move($2);
-                  for (auto& declaration: $$) {
-                    logger.debug(declaration->printNode());
-                  }
+                  logger.debug($$->printNode());
                 }
   | /* %empty */
                 {
-                  $$ = vector<unique_ptr<ConstDeclaration>>{};
+                  $$ = make_unique<ConstDeclarations>();
                 };
 
 const_declaration:
@@ -200,15 +198,15 @@ const_declaration:
                   auto node = make_unique<ConstDeclaration>();
                   node->identifier = $3;
                   node->const_value = $5;
-                  $$.push_back(move(node));
+                  $$->appendChild(move(node));
                 }
   | IDENTIFIER EQUAL const_value
                 {
-                  $$ = vector<unique_ptr<ConstDeclaration>>{};
+                  $$ = make_unique<ConstDeclarations>();
                   auto node = make_unique<ConstDeclaration>();
                   node->identifier = $1;
                   node->const_value = $3;
-                  $$.push_back(move(node));
+                  $$->appendChild(move(node));
                 };
 
 var_declarations:
