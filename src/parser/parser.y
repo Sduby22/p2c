@@ -111,11 +111,11 @@
 %type <unique_ptr<ASTNode>> subprogram_declarations
 %type <unique_ptr<ASTNode>> subprogram
 %type <unique_ptr<ASTNode>> subprogram_head
-%type <unique_ptr<ASTNode>> formal_parameter
-%type <unique_ptr<ASTNode>> parameter_list
-%type <unique_ptr<ASTNode>> parameter
-%type <unique_ptr<ASTNode>> var_parameter
-%type <unique_ptr<ASTNode>> value_parameter
+%type <unique_ptr<ParameterList>> formal_parameter
+%type <unique_ptr<ParameterList>> parameter_list
+%type <unique_ptr<Parameter>> parameter
+%type <unique_ptr<Parameter>> var_parameter
+%type <unique_ptr<Parameter>> value_parameter
 %type <unique_ptr<SubprogramBody>> subprogram_body
 %type <unique_ptr<CompoundStatement>> compound_statement
 %type <unique_ptr<Statement>> statement
@@ -184,6 +184,7 @@ const_declarations:
   CONST const_declaration SEMICOLON
                 {
                   $$ = move($2);
+                  $$->isEmpty = false;
                   logger.debug($$->printNode());
                 }
   | /* %empty */
@@ -217,6 +218,7 @@ var_declarations:
   VAR var_declaration SEMICOLON
                 {
                   $$ = move($2);
+                  $$->isEmpty = false;
                   logger.debug($$->printNode());
                 }
   | /* %empty */
@@ -275,43 +277,55 @@ subprogram_head:
 formal_parameter:
   LBRACKET parameter_list RBRACKET
                 {
-                  $$ = nullptr;
+                  $$ = move($2);
+                  $$->isEmpty = false;
+                  logger.debug($$->printNode());
                 }
   |  /* %empty */
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<ParameterList>();
+                  $$->isEmpty = true;
+                  logger.debug($$->printNode());
                 };
 
 parameter_list:
   parameter_list SEMICOLON parameter
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  $$->appendChild(move($3));
                 }
   | parameter
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<ParameterList>();
+                  $$->appendChild(move($1));
                 };
 
 parameter:
   var_parameter
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  logger.debug($$->printNode());
                 }
   | value_parameter
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  logger.debug($$->printNode());
                 };
 
 var_parameter:
   VAR value_parameter
                 {
-                  $$ = nullptr;
+                  $$ = move($2);
+                  $$->parameter_type = 1; //var type
                 };
 
 value_parameter:
   idlist COLON basic_type
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Parameter>();
+                  $$->parameter_type = 0; //value type
+                  $$->idlist = move($1);
+                  $$->type = $3;
                 };
 
 subprogram_body:

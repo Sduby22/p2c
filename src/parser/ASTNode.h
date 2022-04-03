@@ -263,6 +263,32 @@ private:
 };
 
 
+/* parameter node */
+class Parameter : public ASTNode {
+public:
+  int parameter_type;
+  vector<string>idlist;
+  BasicType type;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* parameter_list node */
+class ParameterList : public ASTNode {
+public:
+  bool isEmpty;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
 //
 template <typename NodeT, typename... Args>
 std::unique_ptr<ASTNode> make_Node(Args &&...args) {
