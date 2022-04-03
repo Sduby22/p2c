@@ -282,6 +282,43 @@ private:
 };
 
 
+/* subprogram_head node */
+class SubprogramHead : public ASTNode {
+public:
+  bool hasReturn;
+  string funcId;
+  BasicType returnType;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* subprogram node */
+class Subprogram : public ASTNode {
+public:
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
+/* subprogram_declarations node */
+class SubprogramDeclarations : public ASTNode {
+public:
+  bool isEmpty;
+  virtual std::string genCCode();
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
+
 //
 template <typename NodeT, typename... Args>
 std::unique_ptr<ASTNode> make_Node(Args &&...args) {
