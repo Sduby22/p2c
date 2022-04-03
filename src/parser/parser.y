@@ -108,9 +108,9 @@
 %type <unique_ptr<ConstDeclarations>> const_declaration
 %type <unique_ptr<VarDeclarations>> var_declarations
 %type <unique_ptr<VarDeclarations>> var_declaration
-%type <unique_ptr<ASTNode>> subprogram_declarations
-%type <unique_ptr<ASTNode>> subprogram
-%type <unique_ptr<ASTNode>> subprogram_head
+%type <unique_ptr<SubprogramDeclarations>> subprogram_declarations
+%type <unique_ptr<Subprogram>> subprogram
+%type <unique_ptr<SubprogramHead>> subprogram_head
 %type <unique_ptr<ParameterList>> formal_parameter
 %type <unique_ptr<ParameterList>> parameter_list
 %type <unique_ptr<Parameter>> parameter
@@ -251,27 +251,44 @@ var_declaration:
 subprogram_declarations:
   subprogram_declarations subprogram SEMICOLON
                 {
-                  $$ = nullptr;
+                  $$ = move($1);
+                  $$->appendChild(move($2));
+                  $$->isEmpty = false;
+                  logger.debug($$->printNode());
                 }
   |  /* %empty */
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<SubprogramDeclarations>();
+                  $$->isEmpty = true;
+                  logger.debug($$->printNode());
                 };
 
 subprogram:
   subprogram_head SEMICOLON subprogram_body
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<Subprogram>();
+                  $$->appendChild(move($1));
+                  $$->appendChild(move($3));
+                  logger.debug($$->printNode());
                 };
 
 subprogram_head:
   PROCEDURE IDENTIFIER formal_parameter
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<SubprogramHead>();
+                  $$->hasReturn = false;
+                  $$->funcId = $2;
+                  $$->appendChild(move($3));
+                  logger.debug($$->printNode());
                 }
   | FUNC IDENTIFIER formal_parameter COLON basic_type
                 {
-                  $$ = nullptr;
+                  $$ = make_unique<SubprogramHead>();
+                  $$->hasReturn = true;
+                  $$->returnType = $5;
+                  $$->funcId = $2;
+                  $$->appendChild(move($3));
+                  logger.debug($$->printNode());
                 };
 
 formal_parameter:

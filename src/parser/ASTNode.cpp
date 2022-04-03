@@ -640,7 +640,7 @@ namespace p2c {
     {
       idlist_str += (" " + id);
     }
-    return fmt::format("parameter_type: {}, idlist:{}, type: {}\n", para_type, idlist_str, type_str);;
+    return fmt::format("parameter_type: {}, idlist:{}, type: {}\n", para_type, idlist_str, type_str);
   }
 
   string Parameter::genCCode() {
@@ -684,13 +684,113 @@ namespace p2c {
   }
 
   string ParameterList::genCCode() {
-      string res = "(";
+      string res = "";
       for (auto& child: _childs)
       {
         res += child->genCCode();
       }
       res.erase(res.end()-2, res.end());
-      return (res + ")\n");
+      return res;
+  }
+
+
+/* subprogram_head node */
+  const string& SubprogramHead::_getName() {
+    static string name = "SubprogramHead";
+    return name;
+  }
+
+  string SubprogramHead::_infoStr() {
+    string returnType_str;
+    if (hasReturn) {
+      switch (returnType) {
+      case BasicType::INTEGER: 
+      case BasicType::BOOLEAN:
+        returnType_str = "int";
+        break;
+      case BasicType::REAL:
+        returnType_str = "float";
+        break;
+      case BasicType::CHAR:
+        returnType_str = "char";
+        break;
+      default:
+        break;
+      }
+    } else {
+      returnType_str = "void";
+    }
+    return fmt::format("func_id: {}, return_type: {}\n", funcId, returnType_str);
+  }
+
+  string SubprogramHead::genCCode() {
+    string res = "", returnType_str;
+    if (hasReturn) {
+      switch (returnType) {
+      case BasicType::INTEGER: 
+      case BasicType::BOOLEAN:
+        returnType_str = "int ";
+        break;
+      case BasicType::REAL:
+        returnType_str = "float ";
+        break;
+      case BasicType::CHAR:
+        returnType_str = "char ";
+        break;
+      default:
+        break;
+      }
+    } else {
+      returnType_str = "void ";
+    }
+    res += (returnType_str + funcId + "(");
+    for (auto& child: _childs)
+    {
+      res += child->genCCode();
+    }
+    return (res + ")");
+  }
+
+
+/* subprogram node */
+  const string& Subprogram::_getName() {
+    static string name = "Subprogram";
+    return name;
+  }
+
+  string Subprogram::_infoStr() {
+    return "";
+  }
+
+  string Subprogram::genCCode() {
+      string res = "";
+      res += (_childs.at(0)->genCCode() + " {\n");
+      res += (_childs.at(1)->genCCode() + " }\n");
+      return (res + "\n");
+  }
+
+
+/* subprogram_declarations node */
+  const string& SubprogramDeclarations::_getName() {
+    static string name = "SubprogramDeclarations";
+    return name;
+  }
+
+  string SubprogramDeclarations::_infoStr() {
+    if (isEmpty) {
+      return "empty";
+    } else {
+      return "";
+    }
+  }
+
+  string SubprogramDeclarations::genCCode() {
+      string res = "";
+      for (auto& child: _childs)
+      {
+        res += child->genCCode();
+      }
+      return (res + "\n");
   }
 
 
