@@ -550,4 +550,89 @@ namespace p2c {
   }
 
 
+/* parameter node */
+  const string& Parameter::_getName() {
+    static string name = "Parameter";
+    return name;
+  }
+
+  string Parameter::_infoStr() {
+    string para_type, idlist_str = "",type_str;      
+    if (parameter_type == 0) { //value type 
+      para_type = "value";
+    } else {
+      para_type = "var";
+    }
+    switch (type) {
+      case BasicType::INTEGER: 
+      case BasicType::BOOLEAN:
+        type_str = "int ";
+        break;
+      case BasicType::REAL:
+        type_str = "float ";
+        break;
+      case BasicType::CHAR:
+        type_str = "char ";
+        break;
+      default:
+        break;
+    }
+    for (auto id: idlist)
+    {
+      idlist_str += (" " + id);
+    }
+    return fmt::format("parameter_type: {}, idlist:{}, type: {}\n", para_type, idlist_str, type_str);;
+  }
+
+  string Parameter::genCCode() {
+    string res, type_str;      
+    switch (type) {
+      case BasicType::INTEGER: 
+      case BasicType::BOOLEAN:
+        type_str = "int ";
+        break;
+      case BasicType::REAL:
+        type_str = "float ";
+        break;
+      case BasicType::CHAR:
+        type_str = "char ";
+        break;
+      default:
+        break;
+      }
+    if (parameter_type == 1){ //var
+      type_str += "*";
+    }
+    for (auto id : idlist)
+    {
+      res += (type_str + id+", ");
+    }
+    return res;
+  }
+
+/* parameter_list node */
+  const string& ParameterList::_getName() {
+    static string name = "ParameterList";
+    return name;
+  }
+
+  string ParameterList::_infoStr() {
+    if (isEmpty) {
+      return "empty";
+    } else {
+      return "";
+    }
+  }
+
+  string ParameterList::genCCode() {
+      string res = "(";
+      for (auto& child: _childs)
+      {
+        res += child->genCCode();
+      }
+      res.erase(res.end()-2, res.end());
+      return (res + ")\n");
+  }
+
+
 } // namespace p2c
