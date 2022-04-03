@@ -1,5 +1,6 @@
 #include "ASTNode.h"
 #include "spdlog/fmt/fmt.h"
+#include "magic_enum.hpp"
 #include <vector>
 
 namespace p2c {
@@ -81,11 +82,10 @@ namespace p2c {
       str += fmt::format("{}<{}>\n", indent, _getName());
     else
       str += fmt::format("{}<{} {}>\n", indent, _getName(), infoStr);
-    for (auto &child : _childs) {
-      child->_printNode(level + 1, str);
-      if (child != _childs.back()) {
-        str += string((level + 1)*2, ' ') + "<Relop type: ***>\n";
-      }
+    _childs.front()->_printNode(level + 1, str);
+    if (_childs.size() == 2) {
+      str += fmt::format("{}<Relop type: {}>\n", string((level + 1)*2, ' '), magic_enum::enum_name<Operator>(relop));
+      _childs[1]->_printNode(level + 1, str);
     }
   }
 
@@ -131,10 +131,11 @@ namespace p2c {
       str += fmt::format("{}<{}>\n", indent, _getName());
     else
       str += fmt::format("{}<{} {}>\n", indent, _getName(), infoStr);
+    int i = 0;
     for (auto &child : _childs) {
       child->_printNode(level + 1, str);
-      if (child != _childs.back()) {
-        str += string((level + 1)*2, ' ') + "<Addlop type: ***>\n";
+      if (i < _childs.size()-1) {
+        str += fmt::format("{}<Addop type: {}>\n", string((level+1) * 2, ' '), magic_enum::enum_name<Operator>(addops[i++]));
       }
     }
   }
@@ -187,10 +188,11 @@ namespace p2c {
       str += fmt::format("{}<{}>\n", indent, _getName());
     else
       str += fmt::format("{}<{} {}>\n", indent, _getName(), infoStr);
+    int i = 0;  
     for (auto &child : _childs) {
       child->_printNode(level + 1, str);
-      if (child != _childs.back()) {
-        str += string((level + 1)*2, ' ') + "<Mulop type: ***>\n";
+      if (i < _childs.size()-1) {
+        str += fmt::format("{}<Mulop type: {}>\n", string((level+1) * 2, ' '), magic_enum::enum_name<Operator>(mulops[i++]));
       }
     }
   }
