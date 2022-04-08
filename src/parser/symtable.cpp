@@ -1,5 +1,6 @@
 #include "symtable.h"
 #include "logging.h"
+#include "magic_enum.hpp"
 #include <stack>
 
 auto logger = logging::getLogger("Symbols");
@@ -37,6 +38,15 @@ bool SymbolTable::contains(std::string name) {
 
 Symbol SymbolTable::get(std::string name) {
   return _symbols.at(name);
+}
+
+void SymbolTable::print() {
+  std::string ss;
+  ss += fmt::format("Symbol table {}:\n", this->name);
+  for (auto &symbol : _symbols) {
+    ss += fmt::format("  {}: {}, isref: {}\n", symbol.first, magic_enum::enum_name(symbol.second.type), symbol.second.is_ref);
+  }
+  logger.info(ss);
 }
 
 }

@@ -167,6 +167,7 @@ programstruct:
                     $$->appendChild(move(child));
                   }
                   logger.debug($$->genCCode());
+                  logger.debug($$->printNode());
                 };
 
 program_head:

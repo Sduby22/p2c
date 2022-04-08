@@ -607,6 +607,7 @@ namespace p2c {
       {
         res += child->genCCode();
       }
+      current_table().print();
       pop_table();
       return res;
   }
