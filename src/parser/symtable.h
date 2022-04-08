@@ -3,24 +3,23 @@
 #include "types.h"
 #include <stack>
 #include <string>
-#include <optional>
 #include <unordered_map>
+#include <variant>
 #include <vector>
 
 namespace p2c {
 
 struct Symbol {
   std::string name;
-  p2c::BasicType type;
+  std::variant<BasicType, ArrayType> type;
   bool is_ref = false;
-  std::optional<std::vector<std::tuple<int, int>>> array_dimensions;
 };
 
 class SymbolTable {
 public:
   SymbolTable(const std::string &name);
   void add(std::string name, p2c::BasicType type, bool is_ref = false);
-  void add(std::string name, p2c::BasicType type, std::vector<std::tuple<int, int>> array_dimensions);
+  void add(std::string name, p2c::ArrayType type, bool is_ref = false);
   bool contains(std::string name);
   Symbol& get(std::string name);
   void print();

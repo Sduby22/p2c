@@ -5,6 +5,7 @@
 #include "symtable.h"
 #include "types.h"
 #include <memory>
+#include <variant>
 #include <vector>
 
 namespace p2c {
@@ -566,7 +567,7 @@ namespace p2c {
         for (auto id : idlist)
         {
           res += (id + dimension_str + ", ");
-          current_table().add(id, get<1>(type).basictype, dimensions);
+          current_table().add(id, get<ArrayType>(type));
         }
       }
       res.erase(res.end()-2, res.end());

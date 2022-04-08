@@ -34,5 +34,4 @@ struct ArrayType {
   std::vector<std::tuple<int, int>> dimensions;
 };
 
-
 }

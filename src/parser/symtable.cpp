@@ -1,8 +1,9 @@
 #include "symtable.h"
 #include "logging.h"
 #include "magic_enum.hpp"
-#include <stack>
+#include "types.h"
 #include <stdexcept>
+#include <variant>
 
 auto logger = logging::getLogger("Symbols");
 
@@ -24,16 +25,16 @@ void pop_table() {
 
 SymbolTable::SymbolTable(const std::string &name): name(name) {}
 
-void SymbolTable::add(std::string name, p2c::BasicType type, bool is_ref) {
+void SymbolTable::add(std::string name, BasicType type, bool is_ref) {
   if (contains(name)) 
     logger.warn("Symbol {} already exists in table {}, possible symbol redefinition.", name, this->name);
   _symbols[name] = Symbol{name, type, is_ref};
 }
 
-void SymbolTable::add(std::string name, p2c::BasicType type, std::vector<std::tuple<int, int>> array_dimensions) {
+void SymbolTable::add(std::string name, ArrayType type, bool is_ref) {
   if (contains(name)) 
     logger.warn("Symbol {} already exists in table {}, possible symbol redefinition.", name, this->name);
-  _symbols[name] = Symbol{name, type, false, array_dimensions};
+  _symbols[name] = Symbol{name, type, is_ref};
 }
 
 bool SymbolTable::contains(std::string name) {
@@ -44,17 +45,28 @@ Symbol& SymbolTable::get(std::string name) {
   return _symbols.at(name);
 }
 
+std::string _type_string(const BasicType& type) {
+  return std::string(magic_enum::enum_name(type));
+}
+
+std::string _type_string(const ArrayType& type) {
+  std::string ss;
+  ss += _type_string(type.basictype);
+  for (auto [start, end] : type.dimensions) {
+    ss += fmt::format("[{}, {}]", start, end);
+  }
+  return ss;
+}
+
+std::string type_string(const std::variant<BasicType, ArrayType>& type) {
+  return std::visit([](auto&& arg) { return _type_string(arg); }, type);
+}
+
 void SymbolTable::print() {
   std::string ss;
   ss += fmt::format("Symbol table {}:\n", this->name);
   for (auto &symbol : _symbols) {
-    ss += fmt::format("  {}: {}, isref: {}", symbol.first, magic_enum::enum_name(symbol.second.type), symbol.second.is_ref);
-    if (symbol.second.array_dimensions) {
-      ss += fmt::format(", array_dimensions: ");
-      for (auto &dim : *symbol.second.array_dimensions) {
-        ss += fmt::format("[{}, {}]", std::get<0>(dim), std::get<1>(dim));
-      }
-    }
+    ss += fmt::format("  {}: {}, isref: {}", symbol.first, type_string(symbol.second.type), symbol.second.is_ref);
     ss += "\n";
   }
   logger.info(ss);
@@ -79,7 +91,7 @@ Function& find_function(std::string name) {
 }
 
 
-void FunctionTable::add(std::string name, p2c::BasicType return_type, std::vector<Symbol> params) {
+void FunctionTable::add(std::string name, BasicType return_type, std::vector<Symbol> params) {
   if (contains(name)) 
     logger.warn("Function {} already exists in table, possible function redefinition.", name);
   _functions[name] = Function{name, return_type, params};
@@ -97,7 +109,7 @@ void FunctionTable::print() {
   static auto paramString = [](const Function &func) {
     std::string ss;
     for (auto &param : func.params) {
-      ss += fmt::format(param.is_ref ? "{} &{}" : "{} {}" , magic_enum::enum_name(param.type), param.name);
+      ss += fmt::format(param.is_ref ? "{} &{}" : "{} {}" , type_string(param.type), param.name);
       ss.push_back(',');
     }
     if (!ss.empty())
