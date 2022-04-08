@@ -3,6 +3,7 @@
 #include "spdlog/fmt/fmt.h"
 #include "magic_enum.hpp"
 #include "symtable.h"
+#include <memory>
 #include <vector>
 
 namespace p2c {
@@ -754,6 +755,14 @@ namespace p2c {
     {
       res += child->genCCode();
     }
+    function_table().add(funcId, returnType, {});
+    auto &func = function_table().get(funcId);
+    // this assumes that the ASTTree Structure is SubprogramHead -> ParameterList -> Parameter
+    for (auto &child: _childs[0]->_childs) {
+      auto& paramNode = dynamic_cast<Parameter&>(*child);
+      for (auto id: paramNode.idlist)
+        func.params.push_back({id, paramNode.type, paramNode.isref});
+    }
     return (res + ")");
   }
 
@@ -796,6 +805,7 @@ namespace p2c {
       {
         res += child->genCCode();
       }
+      function_table().print();
       return (res + "\n");
   }
 

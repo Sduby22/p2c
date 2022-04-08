@@ -26,6 +26,27 @@ private:
   std::unordered_map<std::string, Symbol> _symbols;
 };
 
+struct Function {
+  std::string name;
+  p2c::BasicType return_type;
+  std::vector<Symbol> params;
+};
+
+class FunctionTable {
+public:
+  FunctionTable() = default;
+  void add(std::string name, p2c::BasicType return_type, std::vector<Symbol> params);
+  bool contains(std::string name);
+  Function& get(std::string name);
+  void print();
+
+private:
+  std::unordered_map<std::string, Function> _functions;
+};
+
+FunctionTable& function_table();
+Function& find_function(std::string name);
+
 SymbolTable& current_table();
 Symbol& find_symbol(std::string name);
 void push_table(const std::string &name);
