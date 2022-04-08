@@ -325,6 +325,16 @@ private:
   virtual std::string _infoStr();
 };
 
+class ProgramDecl : public ASTNode {
+public:
+  virtual std::string genCCode();
+  std::string name;
+
+private:
+  virtual const std::string &_getName();
+  virtual std::string _infoStr();
+};
+
 
 //
 template <typename NodeT, typename... Args>

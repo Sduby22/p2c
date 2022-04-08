@@ -1,4 +1,5 @@
 #include "ASTNode.h"
+#include "spdlog/fmt/bundled/core.h"
 #include "spdlog/fmt/fmt.h"
 #include "magic_enum.hpp"
 #include <vector>
@@ -791,6 +792,29 @@ namespace p2c {
         res += child->genCCode();
       }
       return (res + "\n");
+  }
+
+  
+  std::string ProgramDecl::genCCode() {
+    std::string res = "";
+    for (int i = 0; i != _childs.size(); ++i) {
+      auto &child = _childs[i];
+      if (i == _childs.size() - 1) 
+        res += fmt::format("int main() {}", child->genCCode());
+      else
+        res += child->genCCode();
+      res.push_back('\n');
+    }
+    return res;
+  }
+
+  const std::string & ProgramDecl::_getName() {
+    static std::string name = "ProgramDecl";
+    return name;
+  }
+
+  std::string ProgramDecl::_infoStr() {
+    return fmt::format("name: {}", name);
   }
 
 

@@ -101,9 +101,9 @@
 %precedence ELSE
 
 // 下面是非终结符列表
-%type <unique_ptr<ASTNode>> programstruct
-%type <unique_ptr<ASTNode>> program_head
-%type <unique_ptr<ASTNode>> program_body
+%type <unique_ptr<ProgramDecl>> programstruct
+%type <string> program_head
+%type <vector<unique_ptr<ASTNode>>> program_body
 %type <unique_ptr<ConstDeclarations>> const_declarations
 %type <unique_ptr<ConstDeclarations>> const_declaration
 %type <unique_ptr<VarDeclarations>> var_declarations
@@ -161,23 +161,33 @@ programstruct:
   /* CONST_INT CONST_REAL CONST_BOOL CONST_CHAR IDENTIFIER */
                 {
                   logger.debug("wow");
-                  $$ = nullptr;
+                  $$ = make_unique<ProgramDecl>();
+                  $$->name = $1;
+                  for (auto &child: $3) {
+                    $$->appendChild(move(child));
+                  }
+                  logger.debug($$->printNode());
+                  logger.debug($$->genCCode());
                 };
 
 program_head:
   PROGRAM IDENTIFIER LBRACKET idlist RBRACKET
                 {
-                  $$ = nullptr;
+                  $$ = $2;
                 }
   | PROGRAM IDENTIFIER
                 {
-                  $$ = nullptr;
+                  $$ = $2;
                 };
 
 program_body:
   const_declarations var_declarations subprogram_declarations compound_statement
                 {
-                  $$ = nullptr;
+                  $$ = vector<unique_ptr<ASTNode>>{};
+                  $$.push_back(move($1));
+                  $$.push_back(move($2));
+                  $$.push_back(move($3));
+                  $$.push_back(move($4));
                 };
 
 const_declarations:
