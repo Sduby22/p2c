@@ -3,43 +3,12 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "types.h"
 
 using namespace std;
 namespace p2c {
 
 using ValueType = variant<uint64_t, float, bool, char>;
-
-enum class Operator {
-  ADD,
-  MINUS,
-  OR,
-  STAR,
-  SLASH,
-  DIV,
-  MOD,
-  AND,
-  GREATER_THAN,
-  LESS_THAN,
-  GREATER_EQUAL,
-  LESS_EQUAL,
-  EQUAL,
-  NOT_EQUAL
-  // ...
-};
-
-enum class BasicType {
-  INTEGER,
-  REAL,
-  BOOLEAN,
-  CHAR
-};
-
-struct ArrayType {
-  BasicType basictype;
-  std::vector<std::tuple<int, int>> dimensions;
-};
-
-
 /* ASTNode */
 class ASTNode {
 public:
@@ -266,7 +235,7 @@ private:
 /* parameter node */
 class Parameter : public ASTNode {
 public:
-  int parameter_type;
+  bool isref;
   vector<string>idlist;
   BasicType type;
   virtual std::string genCCode();

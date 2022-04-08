@@ -2,6 +2,7 @@
 #include "spdlog/fmt/bundled/core.h"
 #include "spdlog/fmt/fmt.h"
 #include "magic_enum.hpp"
+#include "symtable.h"
 #include <vector>
 
 namespace p2c {
@@ -606,6 +607,7 @@ namespace p2c {
       {
         res += child->genCCode();
       }
+      pop_table();
       return res;
   }
 
@@ -618,10 +620,10 @@ namespace p2c {
 
   string Parameter::_infoStr() {
     string para_type, idlist_str = "",type_str;      
-    if (parameter_type == 0) { //value type 
-      para_type = "value";
+    if (isref) { //value type 
+      para_type = "ref";
     } else {
-      para_type = "var";
+      para_type = "value";
     }
     switch (type) {
       case BasicType::INTEGER: 
@@ -660,11 +662,12 @@ namespace p2c {
       default:
         break;
       }
-    if (parameter_type == 1){ //var
+    if (isref == 1){ //var
       type_str += "*";
     }
     for (auto id : idlist)
     {
+      current_table().add(id, type, isref);
       res += (type_str + id+", ");
     }
     return res;
@@ -725,6 +728,7 @@ namespace p2c {
   }
 
   string SubprogramHead::genCCode() {
+    push_table(funcId);
     string res = "", returnType_str;
     if (hasReturn) {
       switch (returnType) {
@@ -764,10 +768,10 @@ namespace p2c {
   }
 
   string Subprogram::genCCode() {
-      string res = "";
-      res += (_childs.at(0)->genCCode() + " {\n");
-      res += (_childs.at(1)->genCCode() + " }\n");
-      return (res + "\n");
+    string res = "";
+    res += (_childs.at(0)->genCCode() + " {\n");
+    res += (_childs.at(1)->genCCode() + " }\n");
+    return (res + "\n");
   }
 
 
