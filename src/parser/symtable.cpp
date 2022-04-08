@@ -2,26 +2,27 @@
 #include "logging.h"
 #include "magic_enum.hpp"
 #include <stack>
+#include <stdexcept>
 
 auto logger = logging::getLogger("Symbols");
 
 namespace p2c {
 
-std::stack<SymbolTable> symbol_tables;
+std::vector<SymbolTable> symbol_tables;
 
 SymbolTable& current_table() {
   if (symbol_tables.empty()) {
-    symbol_tables.push(SymbolTable("global"));
+    symbol_tables.push_back(SymbolTable("global"));
   }
-  return symbol_tables.top();
+  return symbol_tables.back();
 }
 
 void push_table(const std::string &name) {
-  symbol_tables.push(SymbolTable(name));
+  symbol_tables.push_back(SymbolTable(name));
 }
 
 void pop_table() {
-  symbol_tables.pop();
+  symbol_tables.pop_back();
 }
 
 SymbolTable::SymbolTable(const std::string &name): name(name) {}
@@ -36,7 +37,7 @@ bool SymbolTable::contains(std::string name) {
   return _symbols.find(name) != _symbols.end();
 }
 
-Symbol SymbolTable::get(std::string name) {
+Symbol& SymbolTable::get(std::string name) {
   return _symbols.at(name);
 }
 
@@ -47,6 +48,15 @@ void SymbolTable::print() {
     ss += fmt::format("  {}: {}, isref: {}\n", symbol.first, magic_enum::enum_name(symbol.second.type), symbol.second.is_ref);
   }
   logger.info(ss);
+}
+
+Symbol& find_symbol(std::string name) {
+  for (auto it = symbol_tables.rbegin(); it != symbol_tables.rend(); ++it) {
+    if (it->contains(name)) {
+      return it->get(name);
+    }
+  }
+  throw std::runtime_error("Symbol " + name + " not found.");
 }
 
 }
