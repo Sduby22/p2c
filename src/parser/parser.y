@@ -166,7 +166,6 @@ programstruct:
                   for (auto &child: $3) {
                     $$->appendChild(move(child));
                   }
-                  logger.debug($$->printNode());
                   logger.debug($$->genCCode());
                 };
 
@@ -195,13 +194,11 @@ const_declarations:
                 {
                   $$ = move($2);
                   $$->isEmpty = false;
-                  logger.debug($$->printNode());
                 }
   | /* %empty */
                 {
                   $$ = make_unique<ConstDeclarations>();
                   $$->isEmpty = true;
-                  logger.debug($$->printNode());
                 };
 
 const_declaration:
@@ -212,7 +209,6 @@ const_declaration:
                   node->identifier = $3;
                   node->const_value = $5;
                   $$->appendChild(move(node));
-                  logger.debug($$->printNode());
                 }
   | IDENTIFIER EQUAL const_value
                 {
@@ -221,7 +217,6 @@ const_declaration:
                   node->identifier = $1;
                   node->const_value = $3;
                   $$->appendChild(move(node));
-                  logger.debug($$->printNode());
                 };
 
 var_declarations:
@@ -229,13 +224,11 @@ var_declarations:
                 {
                   $$ = move($2);
                   $$->isEmpty = false;
-                  logger.debug($$->printNode());
                 }
   | /* %empty */
                 {
                   $$ = make_unique<VarDeclarations>();
                   $$->isEmpty = true;
-                  logger.debug($$->printNode());
                 };
 
 var_declaration:
@@ -246,7 +239,6 @@ var_declaration:
                   node->idlist = move($3);
                   node->type = move($5);
                   $$->appendChild(move(node));
-                  logger.debug($$->printNode());
                 }
   | idlist COLON type
                 {
@@ -255,7 +247,6 @@ var_declaration:
                   node->idlist = move($1);
                   node->type = move($3);
                   $$->appendChild(move(node));
-                  logger.debug($$->printNode());
                 };
 
 subprogram_declarations:
@@ -264,13 +255,11 @@ subprogram_declarations:
                   $$ = move($1);
                   $$->appendChild(move($2));
                   $$->isEmpty = false;
-                  logger.debug($$->printNode());
                 }
   |  /* %empty */
                 {
                   $$ = make_unique<SubprogramDeclarations>();
                   $$->isEmpty = true;
-                  logger.debug($$->printNode());
                 };
 
 subprogram:
@@ -279,7 +268,6 @@ subprogram:
                   $$ = make_unique<Subprogram>();
                   $$->appendChild(move($1));
                   $$->appendChild(move($3));
-                  logger.debug($$->printNode());
                 };
 
 subprogram_head:
@@ -289,7 +277,6 @@ subprogram_head:
                   $$->hasReturn = false;
                   $$->funcId = $2;
                   $$->appendChild(move($3));
-                  logger.debug($$->printNode());
                 }
   | FUNC IDENTIFIER formal_parameter COLON basic_type
                 {
@@ -298,7 +285,6 @@ subprogram_head:
                   $$->returnType = $5;
                   $$->funcId = $2;
                   $$->appendChild(move($3));
-                  logger.debug($$->printNode());
                 };
 
 formal_parameter:
@@ -306,13 +292,11 @@ formal_parameter:
                 {
                   $$ = move($2);
                   $$->isEmpty = false;
-                  logger.debug($$->printNode());
                 }
   |  /* %empty */
                 {
                   $$ = make_unique<ParameterList>();
                   $$->isEmpty = true;
-                  logger.debug($$->printNode());
                 };
 
 parameter_list:
@@ -331,26 +315,24 @@ parameter:
   var_parameter
                 {
                   $$ = move($1);
-                  logger.debug($$->printNode());
                 }
   | value_parameter
                 {
                   $$ = move($1);
-                  logger.debug($$->printNode());
                 };
 
 var_parameter:
   VAR value_parameter
                 {
                   $$ = move($2);
-                  $$->parameter_type = 1; //var type
+                  $$->isref = 1; //var type
                 };
 
 value_parameter:
   idlist COLON basic_type
                 {
                   $$ = make_unique<Parameter>();
-                  $$->parameter_type = 0; //value type
+                  $$->isref = 0; //value type
                   $$->idlist = move($1);
                   $$->type = $3;
                 };
@@ -362,7 +344,6 @@ subprogram_body:
                   $$->appendChild(move($1));
                   $$->appendChild(move($2));
                   $$->appendChild(move($3));
-                  logger.debug($$->printNode());
                 };
 
 compound_statement:
@@ -370,7 +351,6 @@ compound_statement:
                 {
                   $$ = make_unique<CompoundStatement>();
                   $$->appendChild(move($2));
-                  logger.debug($$->printNode());
                 };
 
 statement_list:
@@ -378,13 +358,11 @@ statement_list:
                 {
                   $$ = move($1);
                   $$->appendChild(move($3));
-                  logger.debug($$->printNode());
                 }
   | statement
                 {
                   $$ = make_unique<StatementList>();
                   $$->appendChild(move($1));
-                  logger.debug($$->printNode());
                 };
 
 statement:
@@ -395,7 +373,6 @@ statement:
                   $$->appendChild(move($3));
                   $$->type = 1;
                   $$->type_name = "var_assign";
-                  logger.debug($$->printNode());
                 }
   | procedure_call
                 {
@@ -403,7 +380,6 @@ statement:
                   $$->appendChild(move($1));
                   $$->type = 2;
                   $$->type_name = "procedure_call";
-                  logger.debug($$->printNode());
                 }
   | compound_statement
                 {
@@ -411,7 +387,6 @@ statement:
                   $$->appendChild(move($1));
                   $$->type = 3;
                   $$->type_name = "compound_statement";
-                  logger.debug($$->printNode());
                 }
   | IF expression THEN statement ELSE statement
                 {
@@ -421,7 +396,6 @@ statement:
                   $$->appendChild(move($6));
                   $$->type = 4;
                   $$->type_name = "if_else_else";
-                  logger.debug($$->printNode());
                 }
   | IF expression THEN statement 
                 {
@@ -430,7 +404,6 @@ statement:
                   $$->appendChild(move($4));
                   $$->type = 5;
                   $$->type_name = "if_else";
-                  logger.debug($$->printNode());
                 }
   | FOR IDENTIFIER ASSIGN expression TO expression DO statement
                 {
@@ -441,7 +414,6 @@ statement:
                   $$->type = 6;
                   $$->type_name = "for_loop";
                   $$->type_info = move($2);
-                  logger.debug($$->printNode());
                 }
   | READ LBRACKET variable_list RBRACKET
                 {
@@ -449,7 +421,6 @@ statement:
                   $$->appendChild(move($3));
                   $$->type = 7;
                   $$->type_name = "read";
-                  logger.debug($$->printNode());
                 }
   | WRITE LBRACKET expression_list RBRACKET
                 {
@@ -459,14 +430,12 @@ statement:
                   }
                   $$->type = 8;
                   $$->type_name = "write";
-                  logger.debug($$->printNode());
                 }
   |   /*empty*/
                 {
                   $$ = make_unique<Statement>();
                   $$->type = 9;
                   $$->type_name = "empty";
-                  logger.debug($$->printNode());
                 };
 
 variable_list:
@@ -509,7 +478,6 @@ procedure_call:
                 {
                   $$ = make_unique<ProcedureCall>();
                   $$->identifier = move($1);
-                  logger.debug($$->printNode());
                 }
   | IDENTIFIER LBRACKET expression_list RBRACKET
                 {
@@ -518,7 +486,6 @@ procedure_call:
                   for (auto& expression: $3) {
                     $$->appendChild(move(expression));
                   }
-                  logger.debug($$->printNode());
                 };
 
 expression_list:
@@ -604,7 +571,6 @@ factor:
                   for (auto& expression: $3) {
                     $$->appendChild(move(expression));
                   }
-                  logger.debug($$->printNode());
                 }
   | LBRACKET expression RBRACKET
                 {
