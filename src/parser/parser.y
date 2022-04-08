@@ -455,13 +455,11 @@ expression_list:
                 {
                   $$ = move($1);
                   $$.push_back(move($3));
-                  logger.debug("<expression-list>");
                 }
   | expression
                 {
                   $$ = vector<unique_ptr<Expression>>{};
                   $$.push_back(move($1));
-                  logger.debug("<expression-list>");
                 };
 
 expression:
@@ -482,7 +480,7 @@ simple_expression:
   simple_expression addop term
                 {
                   $$ = move($1);
-                  $$->addops.push(move($2));
+                  $$->addops.push_back(move($2));
                   $$->appendChild(move($3));
                 }
   | term
@@ -495,7 +493,7 @@ term:
   term mulop factor
                 {
                   $$ = move($1);
-                  $$->mulops.push(move($2));
+                  $$->mulops.push_back(move($2));
                   $$->appendChild(move($3));
                 }
   | factor
@@ -511,21 +509,26 @@ factor:
                   $$->type = 1;
                   if (holds_alternative<uint64_t>($1)){
                     $$->value = to_string(get<0>($1));
+                    $$->type_info = "Integer";            
                   }
                   else{
                     $$->value = to_string(get<1>($1));
+                    $$->type_info = "Real";                
                   }
                 }
   | variable
                 {
                   $$ = make_unique<Factor>();
                   $$->type = 2;
+                  $$->type_info = "Variable";
+                  $$->value = $1->identifier;
                   $$->appendChild(move($1));
                 }
   | IDENTIFIER LBRACKET expression_list RBRACKET
                 {
                   $$ = make_unique<Factor>();
                   $$->type = 3;
+                  $$->type_info = "Identifier( )";
                   $$->value = $1;
                   for (auto& expression: $3) {
                     $$->appendChild(move(expression));
@@ -536,18 +539,23 @@ factor:
                 {
                   $$ = make_unique<Factor>();
                   $$->type = 4;
+                  $$->type_info = "(Expression)";                 
                   $$->appendChild(move($2));
                 }
   | NOT factor
                 {
                   $$ = make_unique<Factor>();
                   $$->type = 5;
+                  $$->type_info = "Not Factor";
+                  $$->value = "NOT " + $2->type_info;
                   $$->appendChild(move($2));
                 }
   | MINUS factor
                 {
                   $$ = make_unique<Factor>();
                   $$->type = 6;
+                  $$->type_info = "Minus Factor";
+                  $$->value = "MINUS " + $2->type_info;
                   $$->appendChild(move($2));
                 };
 

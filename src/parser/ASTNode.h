@@ -3,7 +3,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <queue>
 
 using namespace std;
 namespace p2c {
@@ -59,6 +58,10 @@ private:
   virtual const std::string &_getName() = 0;
   virtual std::string _infoStr() = 0;
   virtual void _printNode(int level, std::string &str);
+
+  friend class Term;
+  friend class SimpleExpression;
+  friend class Expression;
 };
 
 
@@ -71,30 +74,33 @@ public:
 private:
   virtual const std::string &_getName();
   virtual std::string _infoStr();
+  virtual void _printNode(int level, std::string &str);
 };
 
 
 /* simple_expression node */
 class SimpleExpression: public ASTNode {
 public:
-  queue<Operator> addops;
+  vector<Operator> addops;
   virtual std::string genCCode();
 
 private:
   virtual const std::string &_getName();
   virtual std::string _infoStr();
+  virtual void _printNode(int level, std::string &str);
 };
 
 
 /* term node */
 class Term: public ASTNode {
 public:
-  queue<Operator> mulops;
+  vector<Operator> mulops;
   virtual std::string genCCode();
 
 private:
   virtual const std::string &_getName();
   virtual std::string _infoStr();
+  virtual void _printNode(int level, std::string &str);
 };
 
 
@@ -102,6 +108,7 @@ private:
 class Factor: public ASTNode {
 public:
   int type;
+  string type_info;
   string value;
   virtual std::string genCCode();
 
