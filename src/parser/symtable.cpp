@@ -8,13 +8,7 @@ auto logger = logging::getLogger("Symbols");
 
 namespace p2c {
 
-std::vector<SymbolTable> symbol_tables;
-
-struct InitSymbolTable {
-  InitSymbolTable() {
-    symbol_tables.push_back(SymbolTable("global"));
-  }
-};
+std::vector<SymbolTable> symbol_tables = {SymbolTable("global")};
 
 SymbolTable& current_table() {
   return symbol_tables.back();
@@ -28,14 +22,18 @@ void pop_table() {
   symbol_tables.pop_back();
 }
 
-SymbolTable::SymbolTable(const std::string &name): name(name) {
-  // static InitSymbolTable init_symbol_table;
-}
+SymbolTable::SymbolTable(const std::string &name): name(name) {}
 
 void SymbolTable::add(std::string name, p2c::BasicType type, bool is_ref) {
   if (contains(name)) 
     logger.warn("Symbol {} already exists in table {}, possible symbol redefinition.", name, this->name);
   _symbols[name] = Symbol{name, type, is_ref};
+}
+
+void SymbolTable::add(std::string name, p2c::BasicType type, std::vector<std::tuple<int, int>> array_dimensions) {
+  if (contains(name)) 
+    logger.warn("Symbol {} already exists in table {}, possible symbol redefinition.", name, this->name);
+  _symbols[name] = Symbol{name, type, false, array_dimensions};
 }
 
 bool SymbolTable::contains(std::string name) {
@@ -50,7 +48,14 @@ void SymbolTable::print() {
   std::string ss;
   ss += fmt::format("Symbol table {}:\n", this->name);
   for (auto &symbol : _symbols) {
-    ss += fmt::format("  {}: {}, isref: {}\n", symbol.first, magic_enum::enum_name(symbol.second.type), symbol.second.is_ref);
+    ss += fmt::format("  {}: {}, isref: {}", symbol.first, magic_enum::enum_name(symbol.second.type), symbol.second.is_ref);
+    if (symbol.second.array_dimensions) {
+      ss += fmt::format(", array_dimensions: ");
+      for (auto &dim : *symbol.second.array_dimensions) {
+        ss += fmt::format("[{}, {}]", std::get<0>(dim), std::get<1>(dim));
+      }
+    }
+    ss += "\n";
   }
   logger.info(ss);
 }

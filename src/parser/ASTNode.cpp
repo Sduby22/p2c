@@ -3,6 +3,7 @@
 #include "spdlog/fmt/fmt.h"
 #include "magic_enum.hpp"
 #include "symtable.h"
+#include "types.h"
 #include <memory>
 #include <vector>
 
@@ -449,10 +450,13 @@ namespace p2c {
       string res;
       if (holds_alternative<int64_t>(const_value)) {
         res = fmt::format("const int {} = {};\n", identifier, get<0>(const_value));
+        current_table().add(identifier, BasicType::INTEGER);
       } else if (holds_alternative<float>(const_value)) {
         res = fmt::format("const float {} = {};\n", identifier, get<1>(const_value));
+        current_table().add(identifier, BasicType::REAL);
       } else { //const char type
         res = fmt::format("const char {} = '{}';\n", identifier, get<2>(const_value));
+        current_table().add(identifier, BasicType::CHAR);
       }
       return res;
   }
@@ -535,6 +539,7 @@ namespace p2c {
         for (auto id : idlist)
         {
           res += (id+", ");
+          current_table().add(id, get<BasicType>(type));
         }
       } else { //array type
         switch (get<1>(type).basictype)
@@ -552,7 +557,7 @@ namespace p2c {
           default:
             break;
         }
-        vector<std::tuple<int, int>> dimensions = get<1>(type).dimensions;
+        vector<std::tuple<int, int>> &dimensions = get<1>(type).dimensions;
         string dimension_str;
         for (auto dimension : dimensions)
         {
@@ -561,6 +566,7 @@ namespace p2c {
         for (auto id : idlist)
         {
           res += (id + dimension_str + ", ");
+          current_table().add(id, get<1>(type).basictype, dimensions);
         }
       }
       res.erase(res.end()-2, res.end());
@@ -820,6 +826,7 @@ namespace p2c {
         res += child->genCCode();
       res.push_back('\n');
     }
+    current_table().print();
     return res;
   }
 
