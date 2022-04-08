@@ -6,6 +6,6 @@ BISON_TARGET(BisonParser parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
 FLEX_TARGET(FlexScanner lexer.l ${CMAKE_CURRENT_BINARY_DIR}/scanner.cpp)
 ADD_FLEX_BISON_DEPENDENCY(FlexScanner BisonParser)
 
-add_library(parser ${BISON_BisonParser_OUTPUTS} ${FLEX_FlexScanner_OUTPUTS} ASTNode.cpp driver.cpp)
+add_library(parser ${BISON_BisonParser_OUTPUTS} ${FLEX_FlexScanner_OUTPUTS} ASTNode.cpp driver.cpp symtable.cpp)
 target_include_directories(parser PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/include .)
 target_link_libraries(parser PUBLIC spdlog::spdlog)
