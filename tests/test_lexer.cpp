@@ -35,7 +35,7 @@ TEST_CASE("[Lexer] real&int")
   REQUIRE(token3.kind() == p2c::Parser::symbol_kind_type::S_CONST_REAL);
   REQUIRE(token4.kind() == p2c::Parser::symbol_kind_type::S_CONST_INT);
   REQUIRE([&token3]() -> bool { return fabs(token3.value.as<float>() - 0.1) < 1e-4; }() == 1);
-  REQUIRE([&token4]() -> bool { return token4.value.as<int>() == 2; }() == 1);
+  REQUIRE([&token4]() -> bool { return token4.value.as<uint64_t>() == 2; }() == 1);
 }
 //BOOL型
 TEST_CASE("[Lexer] bool")
