@@ -567,7 +567,7 @@ factor:
                 {
                   $$ = make_unique<Factor>();
                   $$->type = 3;
-                  $$->type_info = "Identifier( )";
+                  $$->type_info = "Identifier()";
                   $$->value = $1;
                   for (auto& expression: $3) {
                     $$->appendChild(move(expression));
