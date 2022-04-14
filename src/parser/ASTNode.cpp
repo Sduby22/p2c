@@ -445,7 +445,7 @@ namespace p2c {
           }
           res.erase(res.end()-1);
           var_list.erase(var_list.end()-2, var_list.end());
-          res = fmt::format("printf(\"{}\n\", {});\n", res, var_list); 
+          res = fmt::format("printf(\"{}\\n\", {});\n", res, var_list); 
           return res;
         }
       default: //case 9: empty
