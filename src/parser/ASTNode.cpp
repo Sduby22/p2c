@@ -5,6 +5,7 @@
 #include "symtable.h"
 #include "types.h"
 #include <memory>
+#include <string>
 #include <variant>
 #include <vector>
 
@@ -296,9 +297,13 @@ namespace p2c {
     if (isEmpty) {
       return "";
     }
+    vector<std::tuple<int, int>> offsets = 
+      get<1>(find_symbol(dynamic_cast<Variable&>(*_parent).identifier).type).dimensions;
     string res = "[";
+    int pos = 0;
     for (auto& expression: _childs) {
-      res += expression->genCCode() += "][";
+      string offset = " - " + to_string(get<0>(offsets[pos++])); 
+      res += expression->genCCode() += offset += "][";
     }
     res.erase(res.end()-1);
     return res; 
@@ -334,9 +339,29 @@ namespace p2c {
     return fmt::format("type: {}", type_name);
   }
 
+  bool Statement::find_type(string str, string& name) {
+    int pos = 0;
+    while ((pos = str.find(' ', pos)) != str.npos) {
+      str.erase(pos, 1);
+    }
+    for (int pos = 0; pos < str.size(); pos++) {
+      if (str[pos] == '(') {
+        char before = str[pos - 1];
+        if ((before>='a' && before<='z') || (before>='A' && before<='Z') || (before>='0' && before<='9')) {
+          name = str.substr(0, pos);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   string Statement::genCCode() {
     switch (type) {
       case 1 :  //variable ASSIGN expression
+        if (dynamic_cast<Variable&>(*_childs.front()).identifier == current_table().name) {
+          return "return " + _childs.back()->genCCode() + ";\n";
+        }
         return _childs.front()->genCCode() + " = " + _childs.back()->genCCode() + ";\n";
       case 2 :  // procedure_call
         return _childs.front()->genCCode() + ";\n";
@@ -353,35 +378,74 @@ namespace p2c {
              + _childs[2]->genCCode() + "\n}\n"; 
       case 7 :  // READ LBRACKET variable_list RBRACKET
         {
+          string res = "";
           string var_list = _childs.front()->genCCode();
-          int pos = 0, count = 1;
-          var_list.insert(pos, "&");
-          while (var_list.find(", ", pos) != var_list.npos) {
-            pos = var_list.find(", ", pos) + 2;
-            var_list.insert(pos, "&");  
-            count++;
-          }
-          string res = "scanf(\"";
-          for (int i = 0; i < count; i++) {
-            res += "%d ";  //******
+          int _pos = 1, pos = 0;
+          var_list.insert(pos++, "&");
+          while (pos < var_list.size()) {
+            pos = var_list.find(", ", pos);
+            if (pos < var_list.size()) {
+              pos += 2;
+              var_list.insert(pos, "&");
+            }
+            string id = var_list.substr(_pos, pos - 2 - _pos);
+            switch (get<0>(find_symbol(id).type)) {
+              case BasicType::INTEGER :
+                res += "%d ";
+                break;
+              case BasicType::REAL :
+                res += "%f ";
+                break;
+              case BasicType::BOOLEAN :
+                res += "%d ";
+                break;
+              case BasicType::CHAR:
+                res += "%c ";
+                break;
+              default :
+                break;
+            }          
+            _pos = pos + 1; 
           }
           res.erase(res.end()-1);
-          res += "\", " + var_list +");\n";
+          res = fmt::format("scanf(\"{}\", {});\n", res, var_list);
           return res;
         }  
       case 8 :  // WRITE LBRACKET expression_list RBRACKET
         {     
-          string res = "printf(\""; 
-          for (int i = 0; i < _childs.size(); i++) {
-            res += "%d "; //******
+          string res = ""; 
+          string var_list = "";
+          for (auto& expression: _childs) {
+            string exp = expression->genCCode();
+            var_list += exp + ", ";     
+            BasicType type;
+            string func_name = "";
+            if (find_type(exp, func_name)) { // function
+              type = find_function(func_name).return_type;
+            }
+            else { // symbol
+              type = get<0>(find_symbol(exp).type);
+            }
+            switch (type) {
+              case BasicType::INTEGER :
+                res += "%d ";
+                break;
+              case BasicType::REAL :
+                res += "%f ";
+                break;
+              case BasicType::BOOLEAN :
+                res += "%d ";
+                break;
+              case BasicType::CHAR:
+                res += "%c ";
+                break;
+              default :
+                break;
+            }  
           }
           res.erase(res.end()-1);
-          res += "\", ";
-          for (auto& expression: _childs) {
-            res += expression->genCCode() += ", ";
-          }
-          res.erase(res.end()-2, res.end());
-          res += ");\n";
+          var_list.erase(var_list.end()-2, var_list.end());
+          res = fmt::format("printf(\"{}\\n\", {});\n", res, var_list); 
           return res;
         }
       default: //case 9: empty
@@ -818,7 +882,7 @@ namespace p2c {
 
   
   std::string ProgramDecl::genCCode() {
-    std::string res = "";
+    std::string res = "#include <stdio.h>\n";
     for (int i = 0; i != _childs.size(); ++i) {
       auto &child = _childs[i];
       if (i == _childs.size() - 1) 

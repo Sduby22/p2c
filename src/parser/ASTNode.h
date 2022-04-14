@@ -140,6 +140,8 @@ public:
 private:
   virtual const std::string &_getName();
   virtual std::string _infoStr();
+  // 判断id是function还是symbol, function: true, symbol: false:
+  bool find_type(std::string, std::string&); 
 };
 
 
