@@ -882,7 +882,7 @@ namespace p2c {
 
   
   std::string ProgramDecl::genCCode() {
-    std::string res = "";
+    std::string res = "#include <stdio.h>\n";
     for (int i = 0; i != _childs.size(); ++i) {
       auto &child = _childs[i];
       if (i == _childs.size() - 1) 
