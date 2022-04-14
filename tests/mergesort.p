@@ -1,0 +1,48 @@
+program mergesort(input, output);
+
+const
+    n = 10;
+
+var
+    mas: array [1..10] of integer;
+    i: integer;
+
+procedure MergeSort(a, c: integer);
+var
+    x, j, i, n1, n2: integer;
+    rez: array[1..1000] of integer;
+begin
+    if c <= a then 
+        exit 
+    else 
+    begin
+        x := (a + c) div 2;
+        MergeSort(a, x);
+        MergeSort(x + 1, c);
+        n1 := a;
+        n2 := x + 1;
+        for i := a to c do 
+        begin
+            if (n1 < x + 1) and ((n2 > c) or (mas[n1] < mas[n2])) then
+            begin
+                rez[i] := mas[n1];
+                n1 := n1 + 1;
+            end 
+            else 
+            begin
+                rez[i] := mas[n2];
+                n2 := n2 + 1;
+            end;
+        end;
+        for j := a to c do
+            mas[j] := rez[j];
+    end; 
+end;
+
+begin
+    for i := 1 to n do
+        read(mas[i]);
+    MergeSort(1, n);
+    for i := 1 to n do
+        write(mas[i]);
+end.
