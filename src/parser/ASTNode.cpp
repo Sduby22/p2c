@@ -389,7 +389,19 @@ namespace p2c {
               var_list.insert(pos, "&");
             }
             string id = var_list.substr(_pos, pos - 2 - _pos);
-            switch (get<0>(find_symbol(id).type)) {
+            int lbracket = id.find('[');
+            if (lbracket != id.npos) { // array
+              id = id.substr(0, lbracket);
+            }
+            variant<BasicType, ArrayType> _type = find_symbol(id).type;
+            BasicType type;
+            if (holds_alternative<BasicType>(_type)) {
+              type = get<0>(_type);
+            }
+            else {
+              type = get<1>(_type).basictype;
+            }
+            switch (type) {
               case BasicType::INTEGER :
                 res += "%d ";
                 break;
@@ -417,14 +429,25 @@ namespace p2c {
           string var_list = "";
           for (auto& expression: _childs) {
             string exp = expression->genCCode();
-            var_list += exp + ", ";     
+            var_list += exp + ", ";  
+            variant<BasicType, ArrayType> _type;
             BasicType type;
             string func_name = "";
             if (find_type(exp, func_name)) { // function
               type = find_function(func_name).return_type;
             }
             else { // symbol
-              type = get<0>(find_symbol(exp).type);
+              int lbracket = exp.find('[');
+              if (lbracket != exp.npos) { // array
+                exp = exp.substr(0, lbracket);
+              }
+              _type = find_symbol(exp).type;
+              if (holds_alternative<BasicType>(_type)) {
+                type = get<0>(_type);
+              }
+              else {
+                type = get<1>(_type).basictype;
+              }
             }
             switch (type) {
               case BasicType::INTEGER :
@@ -445,7 +468,7 @@ namespace p2c {
           }
           res.erase(res.end()-1);
           var_list.erase(var_list.end()-2, var_list.end());
-          res = fmt::format("printf(\"{}\\n\", {});\n", res, var_list); 
+          res = fmt::format("printf(\"{}\", {});\n", res, var_list); 
           return res;
         }
       default: //case 9: empty
