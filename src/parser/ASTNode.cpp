@@ -229,8 +229,21 @@ namespace p2c {
       case 3 :  // id (expression_list)
         {
           string res = value + "(";
-          for (auto& expression: _childs) {
-            res += expression->genCCode() += ", ";
+          for (int i = 0; i < _childs.size(); i++) {
+            string param = _childs[i]->genCCode();
+            string _param = param;
+            if (_param.substr(0, 2) == "(*") {
+              _param = _param.substr(2, _param.size()-3);
+            }
+            if (find_function(value).params[i].is_ref) {
+              if (!find_symbol(_param).is_ref) {
+                param = '&' + param;
+              }
+              else {
+                param = _param;
+              }
+            }
+            res += param + ", ";
           }
           res.erase(res.end()-2, res.end());
           res += ")";
@@ -261,7 +274,7 @@ namespace p2c {
   string VariableList::genCCode() {
     string res;
     for (auto& variable: _childs) {
-      res += variable->genCCode() += ", ";
+      res += variable->genCCode() + ", ";
     }
     res.erase(res.end()-2, res.end());
     return res;
@@ -279,6 +292,9 @@ namespace p2c {
   }
 
   string Variable::genCCode() {
+    if (find_symbol(identifier).is_ref) {
+      identifier = "(*" + identifier + ")"; 
+    }
     return identifier +  _childs.front()->genCCode();
   }
 
@@ -389,6 +405,9 @@ namespace p2c {
               var_list.insert(pos, "&");
             }
             string id = var_list.substr(_pos, pos - 2 - _pos);
+            if (id.substr(0, 2) == "(*"){
+              id = id.substr(2, id.size()-3);
+            }
             switch (get<0>(find_symbol(id).type)) {
               case BasicType::INTEGER :
                 res += "%d ";
@@ -418,6 +437,9 @@ namespace p2c {
           for (auto& expression: _childs) {
             string exp = expression->genCCode();
             var_list += exp + ", ";     
+            if (exp.substr(0, 2) == "(*") {
+              exp = exp.substr(2, exp.size()-3);
+            }    
             BasicType type;
             string func_name = "";
             if (find_type(exp, func_name)) { // function
@@ -469,8 +491,21 @@ namespace p2c {
       return identifier;
     }
     string res = identifier + "(";
-    for (auto& expression: _childs) {
-      res += expression->genCCode() += ", ";
+    for (int i = 0; i < _childs.size(); i++) {
+      string param = _childs[i]->genCCode();
+      string _param = param;
+      if (_param.substr(0, 2) == "(*") {
+        _param = _param.substr(2, _param.size()-3);
+      }
+      if (find_function(identifier).params[i].is_ref) {
+        if (!find_symbol(_param).is_ref) {
+          param = '&' + param;
+        }
+        else {
+          param = _param;
+        }
+      }
+      res += param + ", ";
     }
     res.erase(res.end()-2, res.end());
     res += ")";

@@ -1,11 +1,15 @@
-program example(input,output);
-    var x,y:integer;
-    function gcd(a,b:integer):integer;
+program ref(input,output);
+    var x,y: integer;
+    function writes(var a:integer; b:integer):integer;
         begin 
-            if b=0 then gcd:=a { this is a comment }
-            else gcd:=gcd(b, a mod b)
+            a:=4;
+            read(a, b); 
+            write(a, b);
+            if a = 3 then a:=4 else writes(a, a);
+            if writes(a, a) then a:=4 else writes(a, b + 1);
         end;
+
     begin
-        read(x, y);
-        write(gcd(x, y))
+        writes(x, y);
+        writes(y, x+1);
     end.
