@@ -37,7 +37,7 @@ namespace p2c {
 
   void ASTNode::appendChild(std::unique_ptr<ASTNode> child) {
     child->_parent = this;
-    _childs.push_back(move(child));
+    _childs.push_back(std::move(child));
   }
  
   
