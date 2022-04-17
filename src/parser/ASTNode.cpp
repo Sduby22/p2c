@@ -232,15 +232,19 @@ namespace p2c {
           for (int i = 0; i < _childs.size(); i++) {
             string param = _childs[i]->genCCode();
             string _param = param;
-            if (_param.substr(0, 2) == "(*") {
+            if (_param.substr(0, 2) == "(*" && _param.find(')', 3) == _param.size()-1) {    
               _param = _param.substr(2, _param.size()-3);
             }
             if (find_function(value).params[i].is_ref) {
-              if (!find_symbol(_param).is_ref) {
-                param = '&' + param;
+              try {
+                if (!find_symbol(_param).is_ref) {
+                  param = '&' + param;
+                } else {
+                  param = _param;
+                }
               }
-              else {
-                param = _param;
+              catch (...) {
+                param = "&(" + param + ")";
               }
             }
             res += param + ", ";
@@ -292,10 +296,12 @@ namespace p2c {
   }
 
   string Variable::genCCode() {
-    if (find_symbol(identifier).is_ref) {
-      identifier = "(*" + identifier + ")"; 
-    }
-    return identifier +  _childs.front()->genCCode();
+    try {
+      if (find_symbol(identifier).is_ref) {
+        identifier = "(*" + identifier + ")"; 
+      }
+    } catch (...) { }
+    return identifier + _childs.front()->genCCode();
   }
 
   
@@ -408,7 +414,19 @@ namespace p2c {
             if (id.substr(0, 2) == "(*"){
               id = id.substr(2, id.size()-3);
             }
-            switch (get<0>(find_symbol(id).type)) {
+            int lbracket = id.find('[');
+            if (lbracket != id.npos) { // array
+              id = id.substr(0, lbracket);
+            }
+            variant<BasicType, ArrayType> _type = find_symbol(id).type;
+            BasicType type;
+            if (holds_alternative<BasicType>(_type)) {
+              type = get<0>(_type);
+            }
+            else {
+              type = get<1>(_type).basictype;
+            }
+            switch (type) {
               case BasicType::INTEGER :
                 res += "%d ";
                 break;
@@ -436,17 +454,33 @@ namespace p2c {
           string var_list = "";
           for (auto& expression: _childs) {
             string exp = expression->genCCode();
-            var_list += exp + ", ";     
-            if (exp.substr(0, 2) == "(*") {
-              exp = exp.substr(2, exp.size()-3);
-            }    
+            var_list += exp + ", ";  
+            if (exp.substr(0, 2) == "(*" && exp.find(')', 3) == exp.size()-1) {
+                exp = exp.substr(2, exp.size()-3);
+            }  
+            variant<BasicType, ArrayType> _type;
             BasicType type;
             string func_name = "";
             if (find_type(exp, func_name)) { // function
               type = find_function(func_name).return_type;
             }
             else { // symbol
-              type = get<0>(find_symbol(exp).type);
+              int lbracket = exp.find('[');
+              if (lbracket != exp.npos) { // array
+                exp = exp.substr(0, lbracket);
+              }
+              try {
+                _type = find_symbol(exp).type;
+                if (holds_alternative<BasicType>(_type)) {
+                  type = get<0>(_type);
+                }
+                else {
+                  type = get<1>(_type).basictype;
+                }
+              } 
+              catch (...) {
+                type = BasicType::INTEGER; // ******
+              }
             }
             switch (type) {
               case BasicType::INTEGER :
@@ -467,7 +501,7 @@ namespace p2c {
           }
           res.erase(res.end()-1);
           var_list.erase(var_list.end()-2, var_list.end());
-          res = fmt::format("printf(\"{}\\n\", {});\n", res, var_list); 
+          res = fmt::format("printf(\"{}\", {});\n", res, var_list); 
           return res;
         }
       default: //case 9: empty
@@ -494,15 +528,19 @@ namespace p2c {
     for (int i = 0; i < _childs.size(); i++) {
       string param = _childs[i]->genCCode();
       string _param = param;
-      if (_param.substr(0, 2) == "(*") {
+      if (_param.substr(0, 2) == "(*" && _param.find(')', 3) == _param.size()-1) {    
         _param = _param.substr(2, _param.size()-3);
       }
       if (find_function(identifier).params[i].is_ref) {
-        if (!find_symbol(_param).is_ref) {
-          param = '&' + param;
+        try {
+          if (!find_symbol(_param).is_ref) {
+            param = '&' + param;
+          } else {
+            param = _param;
+          }
         }
-        else {
-          param = _param;
+        catch (...) {
+          param = "&(" + param + ")";
         }
       }
       res += param + ", ";
