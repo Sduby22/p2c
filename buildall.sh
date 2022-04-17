@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e 
+
 mkdir -p bin
 rm -rf bin/*
 
