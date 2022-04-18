@@ -160,14 +160,11 @@ programstruct:
   program_head SEMICOLON program_body DOT
   /* CONST_INT CONST_REAL CONST_BOOL CONST_CHAR IDENTIFIER */
                 {
-                  logger.debug("wow");
                   $$ = make_unique<ProgramDecl>();
                   $$->name = $1;
                   for (auto &child: $3) {
                     $$->appendChild(std::move(child));
                   }
-                  logger.debug($$->genCCode());
-                  logger.debug($$->printNode());
                   rootNode = move($$);
                 };
 
