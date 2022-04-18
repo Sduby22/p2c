@@ -165,7 +165,7 @@ programstruct:
                   for (auto &child: $3) {
                     $$->appendChild(std::move(child));
                   }
-                  rootNode = move($$);
+                  rootNode = std::move($$);
                 };
 
 program_head:
