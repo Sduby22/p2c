@@ -42,6 +42,7 @@ public:
   bool contains(std::string name);
   Function& get(std::string name);
   void print();
+  void clear();
 
 private:
   std::unordered_map<std::string, Function> _functions;
@@ -54,5 +55,6 @@ SymbolTable& current_table();
 Symbol& find_symbol(std::string name);
 void push_table(const std::string &name);
 void pop_table();
+void initTables();
 
 }

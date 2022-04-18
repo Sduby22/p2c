@@ -1,4 +1,5 @@
 #include "driver.h"
+#include "symtable.h"
 #include <iostream>
 
 using namespace p2c;
@@ -17,6 +18,7 @@ int Driver::parse(std::istream &is, std::ostream &os) {
 }
 
 std::string Driver::getCCodeStr() {
+  initTables();
   return rootNode->genCCode();
 }
 
