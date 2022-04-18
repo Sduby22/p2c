@@ -19,7 +19,7 @@ ParseResult parse(std::string pascalCode) {
   std::stringstream os;
   p2c::Driver driver;
   ParseResult res;
-  if (driver.parse(is, os)) {
+  if (driver.parse(is, os) == 0) {
     res.success = true;
     res.c_code = driver.getCCodeStr();
     res.syntax_tree = driver.getSyntaxTreeStr();
