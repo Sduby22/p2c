@@ -168,6 +168,7 @@ programstruct:
                   }
                   logger.debug($$->genCCode());
                   logger.debug($$->printNode());
+                  rootNode = move($$);
                 };
 
 program_head:
