@@ -18,7 +18,7 @@ int Driver::parse(std::istream &is, std::ostream &os) {
 }
 
 std::string Driver::getCCodeStr() {
-  initTables();
+  init_tables();
   return rootNode->genCCode();
 }
 
