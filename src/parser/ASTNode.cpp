@@ -504,7 +504,9 @@ namespace p2c {
           res = fmt::format("printf(\"{}\", {});\n", res, var_list); 
           return res;
         }
-      default: //case 9: empty
+      case 9 :
+        return "return;\n";
+      default: //case 10: empty
         return "";
     }
   }

@@ -70,6 +70,7 @@ key_to                  [Tt][Oo]
 key_do                  [Dd][Oo]
 key_read                [Rr][Ee][Aa][Dd]
 key_write               [Ww][Rr][Ii][Tt][Ee]
+key_exit                [Ee][Xx][Ii][Tt]
 
 /* 运算符 */
 op_assign               :=
@@ -241,6 +242,11 @@ illegal_letter          .
 {key_write} {
   logger.debug("key_write");
   return Parser::make_WRITE(loc);        
+}
+
+{key_exit} {
+  logger.debug("key_exit");
+  return Parser::make_EXIT(loc);        
 }
 
 {op_assign} {

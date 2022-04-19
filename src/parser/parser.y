@@ -87,8 +87,8 @@
 //..
 %token ARRAY_RANGE_SEPARATOR
 
-//保留字 program const var procedure function begin end of
-%token PROGRAM CONST VAR PROCEDURE FUNC BEGIN END OF
+//保留字 program const var procedure function begin end of exit
+%token PROGRAM CONST VAR PROCEDURE FUNC BEGIN END OF EXIT
 
 //逻辑保留字 if then else for to do read write
 %token IF THEN ELSE FOR TO DO READ WRITE
@@ -430,10 +430,16 @@ statement:
                   $$->type = 8;
                   $$->type_name = "write";
                 }
-  |   /*empty*/
+  | EXIT
                 {
                   $$ = make_unique<Statement>();
                   $$->type = 9;
+                  $$->type_name = "exit";
+                }
+  |   /*empty*/
+                {
+                  $$ = make_unique<Statement>();
+                  $$->type = 10;
                   $$->type_name = "empty";
                 };
 
