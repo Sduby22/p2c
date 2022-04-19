@@ -9,6 +9,10 @@ add_subdirectory(lib/spdlog-1.9.2)
 add_subdirectory(lib/Catch2-2.13.8)
 add_subdirectory(lib/cxxopts-3.0.0)
 
+if (${EMSCRIPTEN}) 
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")
+endif()
+
 add_subdirectory(src/parser)
 
 # ======== Main =========
@@ -16,6 +20,7 @@ if (${EMSCRIPTEN})
   add_executable(libparser src/libparser.cpp)
   target_include_directories(libparser PUBLIC include)
   target_link_libraries(libparser PUBLIC spdlog::spdlog cxxopts::cxxopts parser)
+  set_target_properties(libparser PROPERTIES LINK_FLAGS "-lembind -s EXPORT_ES6=1 -s MODULARIZE=1 -fexceptions")
 else ()
   add_executable(main src/main.cpp)
   target_include_directories(main PUBLIC include)

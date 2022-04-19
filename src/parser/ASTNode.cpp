@@ -381,7 +381,7 @@ namespace p2c {
   string Statement::genCCode() {
     switch (type) {
       case 1 :  //variable ASSIGN expression
-        if (dynamic_cast<Variable&>(*_childs.front()).identifier == current_table().name) {
+        if (dynamic_cast<Variable&>(*_childs.front()).identifier == current_symbol_table().name) {
           return "return " + _childs.back()->genCCode() + ";\n";
         }
         return _childs.front()->genCCode() + " = " + _childs.back()->genCCode() + ";\n";
@@ -504,7 +504,9 @@ namespace p2c {
           res = fmt::format("printf(\"{}\", {});\n", res, var_list); 
           return res;
         }
-      default: //case 9: empty
+      case 9 :
+        return "return;\n";
+      default: //case 10: empty
         return "";
     }
   }
@@ -588,13 +590,13 @@ namespace p2c {
       string res;
       if (holds_alternative<int64_t>(const_value)) {
         res = fmt::format("const int {} = {};\n", identifier, get<0>(const_value));
-        current_table().add(identifier, BasicType::INTEGER);
+        current_symbol_table().add(identifier, BasicType::INTEGER);
       } else if (holds_alternative<float>(const_value)) {
         res = fmt::format("const float {} = {};\n", identifier, get<1>(const_value));
-        current_table().add(identifier, BasicType::REAL);
+        current_symbol_table().add(identifier, BasicType::REAL);
       } else { //const char type
         res = fmt::format("const char {} = '{}';\n", identifier, get<2>(const_value));
-        current_table().add(identifier, BasicType::CHAR);
+        current_symbol_table().add(identifier, BasicType::CHAR);
       }
       return res;
   }
@@ -677,7 +679,7 @@ namespace p2c {
         for (auto id : idlist)
         {
           res += (id+", ");
-          current_table().add(id, get<BasicType>(type));
+          current_symbol_table().add(id, get<BasicType>(type));
         }
       } else { //array type
         switch (get<1>(type).basictype)
@@ -704,7 +706,7 @@ namespace p2c {
         for (auto id : idlist)
         {
           res += (id + dimension_str + ", ");
-          current_table().add(id, get<ArrayType>(type));
+          current_symbol_table().add(id, get<ArrayType>(type));
         }
       }
       res.erase(res.end()-2, res.end());
@@ -752,8 +754,8 @@ namespace p2c {
       {
         res += child->genCCode();
       }
-      current_table().print();
-      pop_table();
+      current_symbol_table().print();
+      pop_symbol_table();
       return res;
   }
 
@@ -813,7 +815,7 @@ namespace p2c {
     }
     for (auto id : idlist)
     {
-      current_table().add(id, type, isref);
+      current_symbol_table().add(id, type, isref);
       res += (type_str + id+", ");
     }
     return res;
@@ -874,7 +876,7 @@ namespace p2c {
   }
 
   string SubprogramHead::genCCode() {
-    push_table(funcId);
+    push_symbol_table(funcId);
     string res = "", returnType_str;
     if (hasReturn) {
       switch (returnType) {
@@ -964,7 +966,7 @@ namespace p2c {
         res += child->genCCode();
       res.push_back('\n');
     }
-    current_table().print();
+    current_symbol_table().print();
     return res;
   }
 
