@@ -160,14 +160,12 @@ programstruct:
   program_head SEMICOLON program_body DOT
   /* CONST_INT CONST_REAL CONST_BOOL CONST_CHAR IDENTIFIER */
                 {
-                  logger.debug("wow");
                   $$ = make_unique<ProgramDecl>();
                   $$->name = $1;
                   for (auto &child: $3) {
-                    $$->appendChild(move(child));
+                    $$->appendChild(std::move(child));
                   }
-                  logger.debug($$->genCCode());
-                  logger.debug($$->printNode());
+                  rootNode = std::move($$);
                 };
 
 program_head:
@@ -184,16 +182,16 @@ program_body:
   const_declarations var_declarations subprogram_declarations compound_statement
                 {
                   $$ = vector<unique_ptr<ASTNode>>{};
-                  $$.push_back(move($1));
-                  $$.push_back(move($2));
-                  $$.push_back(move($3));
-                  $$.push_back(move($4));
+                  $$.push_back(std::move($1));
+                  $$.push_back(std::move($2));
+                  $$.push_back(std::move($3));
+                  $$.push_back(std::move($4));
                 };
 
 const_declarations:
   CONST const_declaration SEMICOLON
                 {
-                  $$ = move($2);
+                  $$ = std::move($2);
                   $$->isEmpty = false;
                 }
   | /* %empty */
@@ -205,11 +203,11 @@ const_declarations:
 const_declaration:
   const_declaration SEMICOLON IDENTIFIER EQUAL const_value
                 {
-                  $$ = move($1);
+                  $$ = std::move($1);
                   auto node = make_unique<ConstDeclaration>();
                   node->identifier = $3;
                   node->const_value = $5;
-                  $$->appendChild(move(node));
+                  $$->appendChild(std::move(node));
                 }
   | IDENTIFIER EQUAL const_value
                 {
@@ -217,13 +215,13 @@ const_declaration:
                   auto node = make_unique<ConstDeclaration>();
                   node->identifier = $1;
                   node->const_value = $3;
-                  $$->appendChild(move(node));
+                  $$->appendChild(std::move(node));
                 };
 
 var_declarations:
   VAR var_declaration SEMICOLON
                 {
-                  $$ = move($2);
+                  $$ = std::move($2);
                   $$->isEmpty = false;
                 }
   | /* %empty */
@@ -235,26 +233,26 @@ var_declarations:
 var_declaration:
   var_declaration SEMICOLON idlist COLON type
                 {
-                  $$ = move($1);
+                  $$ = std::move($1);
                   auto node = make_unique<VarDeclaration>();
-                  node->idlist = move($3);
-                  node->type = move($5);
-                  $$->appendChild(move(node));
+                  node->idlist = std::move($3);
+                  node->type = std::move($5);
+                  $$->appendChild(std::move(node));
                 }
   | idlist COLON type
                 {
                   $$ = make_unique<VarDeclarations>();
                   auto node = make_unique<VarDeclaration>();
-                  node->idlist = move($1);
-                  node->type = move($3);
-                  $$->appendChild(move(node));
+                  node->idlist = std::move($1);
+                  node->type = std::move($3);
+                  $$->appendChild(std::move(node));
                 };
 
 subprogram_declarations:
   subprogram_declarations subprogram SEMICOLON
                 {
-                  $$ = move($1);
-                  $$->appendChild(move($2));
+                  $$ = std::move($1);
+                  $$->appendChild(std::move($2));
                   $$->isEmpty = false;
                 }
   |  /* %empty */
@@ -267,8 +265,8 @@ subprogram:
   subprogram_head SEMICOLON subprogram_body
                 {
                   $$ = make_unique<Subprogram>();
-                  $$->appendChild(move($1));
-                  $$->appendChild(move($3));
+                  $$->appendChild(std::move($1));
+                  $$->appendChild(std::move($3));
                 };
 
 subprogram_head:
@@ -277,7 +275,7 @@ subprogram_head:
                   $$ = make_unique<SubprogramHead>();
                   $$->hasReturn = false;
                   $$->funcId = $2;
-                  $$->appendChild(move($3));
+                  $$->appendChild(std::move($3));
                 }
   | FUNC IDENTIFIER formal_parameter COLON basic_type
                 {
@@ -285,13 +283,13 @@ subprogram_head:
                   $$->hasReturn = true;
                   $$->returnType = $5;
                   $$->funcId = $2;
-                  $$->appendChild(move($3));
+                  $$->appendChild(std::move($3));
                 };
 
 formal_parameter:
   LBRACKET parameter_list RBRACKET
                 {
-                  $$ = move($2);
+                  $$ = std::move($2);
                   $$->isEmpty = false;
                 }
   |  /* %empty */
@@ -303,29 +301,29 @@ formal_parameter:
 parameter_list:
   parameter_list SEMICOLON parameter
                 {
-                  $$ = move($1);
-                  $$->appendChild(move($3));
+                  $$ = std::move($1);
+                  $$->appendChild(std::move($3));
                 }
   | parameter
                 {
                   $$ = make_unique<ParameterList>();
-                  $$->appendChild(move($1));
+                  $$->appendChild(std::move($1));
                 };
 
 parameter:
   var_parameter
                 {
-                  $$ = move($1);
+                  $$ = std::move($1);
                 }
   | value_parameter
                 {
-                  $$ = move($1);
+                  $$ = std::move($1);
                 };
 
 var_parameter:
   VAR value_parameter
                 {
-                  $$ = move($2);
+                  $$ = std::move($2);
                   $$->isref = 1; //var type
                 };
 
@@ -334,7 +332,7 @@ value_parameter:
                 {
                   $$ = make_unique<Parameter>();
                   $$->isref = 0; //value type
-                  $$->idlist = move($1);
+                  $$->idlist = std::move($1);
                   $$->type = $3;
                 };
 
@@ -342,84 +340,84 @@ subprogram_body:
   const_declarations var_declarations compound_statement
                 {
                   $$ = make_unique<SubprogramBody>();
-                  $$->appendChild(move($1));
-                  $$->appendChild(move($2));
-                  $$->appendChild(move($3));
+                  $$->appendChild(std::move($1));
+                  $$->appendChild(std::move($2));
+                  $$->appendChild(std::move($3));
                 };
 
 compound_statement:
   BEGIN statement_list END
                 {
                   $$ = make_unique<CompoundStatement>();
-                  $$->appendChild(move($2));
+                  $$->appendChild(std::move($2));
                 };
 
 statement_list:
   statement_list SEMICOLON statement
                 {
-                  $$ = move($1);
-                  $$->appendChild(move($3));
+                  $$ = std::move($1);
+                  $$->appendChild(std::move($3));
                 }
   | statement
                 {
                   $$ = make_unique<StatementList>();
-                  $$->appendChild(move($1));
+                  $$->appendChild(std::move($1));
                 };
 
 statement:
   variable ASSIGN expression
                 {
                   $$ = make_unique<Statement>();
-                  $$->appendChild(move($1));
-                  $$->appendChild(move($3));
+                  $$->appendChild(std::move($1));
+                  $$->appendChild(std::move($3));
                   $$->type = 1;
                   $$->type_name = "var_assign";
                 }
   | procedure_call
                 {
                   $$ = make_unique<Statement>();
-                  $$->appendChild(move($1));
+                  $$->appendChild(std::move($1));
                   $$->type = 2;
                   $$->type_name = "procedure_call";
                 }
   | compound_statement
                 {
                   $$ = make_unique<Statement>();
-                  $$->appendChild(move($1));
+                  $$->appendChild(std::move($1));
                   $$->type = 3;
                   $$->type_name = "compound_statement";
                 }
   | IF expression THEN statement ELSE statement
                 {
                   $$ = make_unique<Statement>();
-                  $$->appendChild(move($2));
-                  $$->appendChild(move($4));
-                  $$->appendChild(move($6));
+                  $$->appendChild(std::move($2));
+                  $$->appendChild(std::move($4));
+                  $$->appendChild(std::move($6));
                   $$->type = 4;
                   $$->type_name = "if_else_else";
                 }
   | IF expression THEN statement 
                 {
                   $$ = make_unique<Statement>();
-                  $$->appendChild(move($2));
-                  $$->appendChild(move($4));
+                  $$->appendChild(std::move($2));
+                  $$->appendChild(std::move($4));
                   $$->type = 5;
                   $$->type_name = "if_else";
                 }
   | FOR IDENTIFIER ASSIGN expression TO expression DO statement
                 {
                   $$ = make_unique<Statement>();
-                  $$->appendChild(move($4));
-                  $$->appendChild(move($6));
-                  $$->appendChild(move($8));
+                  $$->appendChild(std::move($4));
+                  $$->appendChild(std::move($6));
+                  $$->appendChild(std::move($8));
                   $$->type = 6;
                   $$->type_name = "for_loop";
-                  $$->type_info = move($2);
+                  $$->type_info = std::move($2);
                 }
   | READ LBRACKET variable_list RBRACKET
                 {
                   $$ = make_unique<Statement>();
-                  $$->appendChild(move($3));
+                  $$->appendChild(std::move($3));
                   $$->type = 7;
                   $$->type_name = "read";
                 }
@@ -427,7 +425,7 @@ statement:
                 {
                   $$ = make_unique<Statement>();
                   for (auto& expression: $3) {
-                    $$->appendChild(move(expression));
+                    $$->appendChild(std::move(expression));
                   }
                   $$->type = 8;
                   $$->type_name = "write";
@@ -442,21 +440,21 @@ statement:
 variable_list:
   variable_list COMMA variable
                 {
-                  $$ = move($1);
-                  $$->appendChild(move($3));
+                  $$ = std::move($1);
+                  $$->appendChild(std::move($3));
                 }
   | variable
                 {
                   $$ = make_unique<VariableList>();
-                  $$->appendChild(move($1));
+                  $$->appendChild(std::move($1));
                 };
 
 variable:
   IDENTIFIER id_varpart
                 {
                   $$ = make_unique<Variable>();
-                  $$->identifier = move($1);
-                  $$->appendChild(move($2));
+                  $$->identifier = std::move($1);
+                  $$->appendChild(std::move($2));
                 };
 
 id_varpart:
@@ -464,7 +462,7 @@ id_varpart:
                 {
                   $$ = make_unique<IdVarpart>();
                   for (auto& expression: $2) {
-                    $$->appendChild(move(expression));
+                    $$->appendChild(std::move(expression));
                   }
                   $$->isEmpty = false;
                 }
@@ -478,67 +476,67 @@ procedure_call:
   IDENTIFIER
                 {
                   $$ = make_unique<ProcedureCall>();
-                  $$->identifier = move($1);
+                  $$->identifier = std::move($1);
                 }
   | IDENTIFIER LBRACKET expression_list RBRACKET
                 {
                   $$ = make_unique<ProcedureCall>();
-                  $$->identifier = move($1);
+                  $$->identifier = std::move($1);
                   for (auto& expression: $3) {
-                    $$->appendChild(move(expression));
+                    $$->appendChild(std::move(expression));
                   }
                 };
 
 expression_list:
   expression_list COMMA expression
                 {
-                  $$ = move($1);
-                  $$.push_back(move($3));
+                  $$ = std::move($1);
+                  $$.push_back(std::move($3));
                 }
   | expression
                 {
                   $$ = vector<unique_ptr<Expression>>{};
-                  $$.push_back(move($1));
+                  $$.push_back(std::move($1));
                 };
 
 expression:
   simple_expression relop simple_expression
                 {
                   $$ = make_unique<Expression>();
-                  $$->relop = move($2);
-                  $$->appendChild(move($1));
-                  $$->appendChild(move($3));
+                  $$->relop = std::move($2);
+                  $$->appendChild(std::move($1));
+                  $$->appendChild(std::move($3));
                 }
   | simple_expression
                 {
                   $$ = make_unique<Expression>();
-                  $$->appendChild(move($1));
+                  $$->appendChild(std::move($1));
                 };
 
 simple_expression:
   simple_expression addop term
                 {
-                  $$ = move($1);
-                  $$->addops.push_back(move($2));
-                  $$->appendChild(move($3));
+                  $$ = std::move($1);
+                  $$->addops.push_back(std::move($2));
+                  $$->appendChild(std::move($3));
                 }
   | term
                 {
                   $$ = make_unique<SimpleExpression>();
-                  $$->appendChild(move($1));
+                  $$->appendChild(std::move($1));
                 };
 
 term:
   term mulop factor
                 {
-                  $$ = move($1);
-                  $$->mulops.push_back(move($2));
-                  $$->appendChild(move($3));
+                  $$ = std::move($1);
+                  $$->mulops.push_back(std::move($2));
+                  $$->appendChild(std::move($3));
                 }
   | factor
                 {
                   $$ = make_unique<Term>();
-                  $$->appendChild(move($1));
+                  $$->appendChild(std::move($1));
                 };
 
 factor:
@@ -561,7 +559,7 @@ factor:
                   $$->type = 2;
                   $$->type_info = "Variable";
                   $$->value = $1->identifier;
-                  $$->appendChild(move($1));
+                  $$->appendChild(std::move($1));
                 }
   | IDENTIFIER LBRACKET expression_list RBRACKET
                 {
@@ -570,7 +568,7 @@ factor:
                   $$->type_info = "Identifier()";
                   $$->value = $1;
                   for (auto& expression: $3) {
-                    $$->appendChild(move(expression));
+                    $$->appendChild(std::move(expression));
                   }
                 }
   | LBRACKET expression RBRACKET
@@ -578,7 +576,7 @@ factor:
                   $$ = make_unique<Factor>();
                   $$->type = 4;
                   $$->type_info = "(Expression)";                 
-                  $$->appendChild(move($2));
+                  $$->appendChild(std::move($2));
                 }
   | NOT factor
                 {
@@ -586,7 +584,7 @@ factor:
                   $$->type = 5;
                   $$->type_info = "Not Factor";
                   $$->value = "NOT " + $2->type_info;
-                  $$->appendChild(move($2));
+                  $$->appendChild(std::move($2));
                 }
   | MINUS factor
                 {
@@ -594,13 +592,13 @@ factor:
                   $$->type = 6;
                   $$->type_info = "Minus Factor";
                   $$->value = "MINUS " + $2->type_info;
-                  $$->appendChild(move($2));
+                  $$->appendChild(std::move($2));
                 };
 
 idlist:
   idlist COMMA IDENTIFIER
                 {
-                  $$ = move($1);
+                  $$ = std::move($1);
                   $$.push_back($3);
                 }
   | IDENTIFIER
@@ -713,7 +711,7 @@ basic_type:
 period:
   period COMMA CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT
                 {
-                  $$ = move($1);
+                  $$ = std::move($1);
                   $$.push_back({$3, $5});
                 }
   | CONST_INT ARRAY_RANGE_SEPARATOR CONST_INT

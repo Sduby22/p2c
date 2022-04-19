@@ -9,17 +9,24 @@ auto logger = logging::getLogger("Symbols");
 
 namespace p2c {
 
-std::vector<SymbolTable> symbol_tables = {SymbolTable("global")};
+static std::vector<SymbolTable> symbol_tables;
+static FunctionTable ft;
 
-SymbolTable& current_table() {
+void init_tables() {
+  symbol_tables.clear();
+  symbol_tables.push_back(SymbolTable("global"));
+  ft.clear();
+}
+
+SymbolTable& current_symbol_table() {
   return symbol_tables.back();
 }
 
-void push_table(const std::string &name) {
+void push_symbol_table(const std::string &name) {
   symbol_tables.push_back(SymbolTable(name));
 }
 
-void pop_table() {
+void pop_symbol_table() {
   symbol_tables.pop_back();
 }
 
@@ -82,7 +89,6 @@ Symbol& find_symbol(std::string name) {
 }
 
 FunctionTable& function_table() {
-  static FunctionTable ft;
   return ft;
 }
 
@@ -126,4 +132,7 @@ void FunctionTable::print() {
   logger.info(ss);
 }
 
+void FunctionTable::clear() {
+  this->_functions.clear();
+}
 }

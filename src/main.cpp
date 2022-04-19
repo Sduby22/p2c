@@ -27,7 +27,13 @@ int parse_file(const string &ifile, const string &ofile) {
     }
   }
   p2c::Driver driver;
-  return driver.parse(is.is_open() ? is : cin, os.is_open() ? os : cout);
+  int res = driver.parse(is.is_open() ? is : cin, os.is_open() ? os : cout);
+  if(os.is_open()) {
+    os << driver.getCCodeStr();
+  } else {
+    cout << driver.getCCodeStr();
+  }
+  return res;
 }
 
 void parse_cmd(int argc, char *argv[]) {

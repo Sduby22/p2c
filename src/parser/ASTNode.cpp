@@ -37,7 +37,7 @@ namespace p2c {
 
   void ASTNode::appendChild(std::unique_ptr<ASTNode> child) {
     child->_parent = this;
-    _childs.push_back(move(child));
+    _childs.push_back(std::move(child));
   }
  
   
@@ -232,15 +232,19 @@ namespace p2c {
           for (int i = 0; i < _childs.size(); i++) {
             string param = _childs[i]->genCCode();
             string _param = param;
-            if (_param.substr(0, 2) == "(*") {
+            if (_param.substr(0, 2) == "(*" && _param.find(')', 3) == _param.size()-1) {    
               _param = _param.substr(2, _param.size()-3);
             }
             if (find_function(value).params[i].is_ref) {
-              if (!find_symbol(_param).is_ref) {
-                param = '&' + param;
+              try {
+                if (!find_symbol(_param).is_ref) {
+                  param = '&' + param;
+                } else {
+                  param = _param;
+                }
               }
-              else {
-                param = _param;
+              catch (...) {
+                param = "&(" + param + ")";
               }
             }
             res += param + ", ";
@@ -292,10 +296,12 @@ namespace p2c {
   }
 
   string Variable::genCCode() {
-    if (find_symbol(identifier).is_ref) {
-      identifier = "(*" + identifier + ")"; 
-    }
-    return identifier +  _childs.front()->genCCode();
+    try {
+      if (find_symbol(identifier).is_ref) {
+        identifier = "(*" + identifier + ")"; 
+      }
+    } catch (...) { }
+    return identifier + _childs.front()->genCCode();
   }
 
   
@@ -375,7 +381,7 @@ namespace p2c {
   string Statement::genCCode() {
     switch (type) {
       case 1 :  //variable ASSIGN expression
-        if (dynamic_cast<Variable&>(*_childs.front()).identifier == current_table().name) {
+        if (dynamic_cast<Variable&>(*_childs.front()).identifier == current_symbol_table().name) {
           return "return " + _childs.back()->genCCode() + ";\n";
         }
         return _childs.front()->genCCode() + " = " + _childs.back()->genCCode() + ";\n";
@@ -408,7 +414,19 @@ namespace p2c {
             if (id.substr(0, 2) == "(*"){
               id = id.substr(2, id.size()-3);
             }
-            switch (get<0>(find_symbol(id).type)) {
+            int lbracket = id.find('[');
+            if (lbracket != id.npos) { // array
+              id = id.substr(0, lbracket);
+            }
+            variant<BasicType, ArrayType> _type = find_symbol(id).type;
+            BasicType type;
+            if (holds_alternative<BasicType>(_type)) {
+              type = get<0>(_type);
+            }
+            else {
+              type = get<1>(_type).basictype;
+            }
+            switch (type) {
               case BasicType::INTEGER :
                 res += "%d ";
                 break;
@@ -436,17 +454,33 @@ namespace p2c {
           string var_list = "";
           for (auto& expression: _childs) {
             string exp = expression->genCCode();
-            var_list += exp + ", ";     
-            if (exp.substr(0, 2) == "(*") {
-              exp = exp.substr(2, exp.size()-3);
-            }    
+            var_list += exp + ", ";  
+            if (exp.substr(0, 2) == "(*" && exp.find(')', 3) == exp.size()-1) {
+                exp = exp.substr(2, exp.size()-3);
+            }  
+            variant<BasicType, ArrayType> _type;
             BasicType type;
             string func_name = "";
             if (find_type(exp, func_name)) { // function
               type = find_function(func_name).return_type;
             }
             else { // symbol
-              type = get<0>(find_symbol(exp).type);
+              int lbracket = exp.find('[');
+              if (lbracket != exp.npos) { // array
+                exp = exp.substr(0, lbracket);
+              }
+              try {
+                _type = find_symbol(exp).type;
+                if (holds_alternative<BasicType>(_type)) {
+                  type = get<0>(_type);
+                }
+                else {
+                  type = get<1>(_type).basictype;
+                }
+              } 
+              catch (...) {
+                type = BasicType::INTEGER; // ******
+              }
             }
             switch (type) {
               case BasicType::INTEGER :
@@ -467,7 +501,7 @@ namespace p2c {
           }
           res.erase(res.end()-1);
           var_list.erase(var_list.end()-2, var_list.end());
-          res = fmt::format("printf(\"{}\\n\", {});\n", res, var_list); 
+          res = fmt::format("printf(\"{}\", {});\n", res, var_list); 
           return res;
         }
       default: //case 9: empty
@@ -494,15 +528,19 @@ namespace p2c {
     for (int i = 0; i < _childs.size(); i++) {
       string param = _childs[i]->genCCode();
       string _param = param;
-      if (_param.substr(0, 2) == "(*") {
+      if (_param.substr(0, 2) == "(*" && _param.find(')', 3) == _param.size()-1) {    
         _param = _param.substr(2, _param.size()-3);
       }
       if (find_function(identifier).params[i].is_ref) {
-        if (!find_symbol(_param).is_ref) {
-          param = '&' + param;
+        try {
+          if (!find_symbol(_param).is_ref) {
+            param = '&' + param;
+          } else {
+            param = _param;
+          }
         }
-        else {
-          param = _param;
+        catch (...) {
+          param = "&(" + param + ")";
         }
       }
       res += param + ", ";
@@ -550,13 +588,13 @@ namespace p2c {
       string res;
       if (holds_alternative<int64_t>(const_value)) {
         res = fmt::format("const int {} = {};\n", identifier, get<0>(const_value));
-        current_table().add(identifier, BasicType::INTEGER);
+        current_symbol_table().add(identifier, BasicType::INTEGER);
       } else if (holds_alternative<float>(const_value)) {
         res = fmt::format("const float {} = {};\n", identifier, get<1>(const_value));
-        current_table().add(identifier, BasicType::REAL);
+        current_symbol_table().add(identifier, BasicType::REAL);
       } else { //const char type
         res = fmt::format("const char {} = '{}';\n", identifier, get<2>(const_value));
-        current_table().add(identifier, BasicType::CHAR);
+        current_symbol_table().add(identifier, BasicType::CHAR);
       }
       return res;
   }
@@ -639,7 +677,7 @@ namespace p2c {
         for (auto id : idlist)
         {
           res += (id+", ");
-          current_table().add(id, get<BasicType>(type));
+          current_symbol_table().add(id, get<BasicType>(type));
         }
       } else { //array type
         switch (get<1>(type).basictype)
@@ -666,7 +704,7 @@ namespace p2c {
         for (auto id : idlist)
         {
           res += (id + dimension_str + ", ");
-          current_table().add(id, get<ArrayType>(type));
+          current_symbol_table().add(id, get<ArrayType>(type));
         }
       }
       res.erase(res.end()-2, res.end());
@@ -714,8 +752,8 @@ namespace p2c {
       {
         res += child->genCCode();
       }
-      current_table().print();
-      pop_table();
+      current_symbol_table().print();
+      pop_symbol_table();
       return res;
   }
 
@@ -775,7 +813,7 @@ namespace p2c {
     }
     for (auto id : idlist)
     {
-      current_table().add(id, type, isref);
+      current_symbol_table().add(id, type, isref);
       res += (type_str + id+", ");
     }
     return res;
@@ -836,7 +874,7 @@ namespace p2c {
   }
 
   string SubprogramHead::genCCode() {
-    push_table(funcId);
+    push_symbol_table(funcId);
     string res = "", returnType_str;
     if (hasReturn) {
       switch (returnType) {
@@ -926,7 +964,7 @@ namespace p2c {
         res += child->genCCode();
       res.push_back('\n');
     }
-    current_table().print();
+    current_symbol_table().print();
     return res;
   }
 
