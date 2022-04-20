@@ -51,10 +51,10 @@ private:
 FunctionTable& function_table();
 Function& find_function(std::string name);
 
-SymbolTable& current_table();
+SymbolTable& current_symbol_table();
 Symbol& find_symbol(std::string name);
-void push_table(const std::string &name);
-void pop_table();
-void initTables();
+void push_symbol_table(const std::string &name);
+void pop_symbol_table();
+void init_tables();
 
 }

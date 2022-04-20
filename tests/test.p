@@ -13,7 +13,7 @@ program example(input,output);
             read(a, b); 
             write(a, b, a+b);
 
-            if a = 3 then a:=4 else gcd(a, a+b);
+            if a = 3 then a:=4 else exit;
             if gcd(a, a) then a:=4 else gcd(a, b + 1);
         end;
 
