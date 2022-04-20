@@ -1,12 +1,10 @@
-/// <reference types="emscripten" />
-
 export class ParseResult {
     success: boolean;
     c_code: string;
     syntax_tree: string;
 }
 
-export interface ParserMoudle extends EmscriptenModule {
+export interface ParserMoudle {
     parse(pascalCode: string): ParseResult;
 }
 
