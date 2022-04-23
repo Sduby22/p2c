@@ -5,13 +5,12 @@
 #include "scanner.h"
 #include <iostream>
 
-extern unique_ptr<p2c::ASTNode> rootNode;
-
 namespace p2c {
 class Driver {
 private:
   Parser _parser;
   Scanner _scanner;
+  unique_ptr<p2c::ASTNode> rootNode;
 
 public:
   Driver();

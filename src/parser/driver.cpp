@@ -5,16 +5,18 @@
 using namespace p2c;
 using namespace std;
 
-// 语法树根节点（全局变量）
-unique_ptr<p2c::ASTNode> rootNode;
-
-Driver::Driver() : _scanner(), _parser(_scanner) {}
+Driver::Driver() : _scanner(), _parser(_scanner, rootNode) {}
 
 Driver::~Driver() {}
 
 int Driver::parse(std::istream &is, std::ostream &os) {
   _scanner.switch_streams(is, os);
-  return _parser.parse();
+  try {
+    int res = _parser.parse();
+    return res;
+  } catch(...) {
+    return 1;
+  }
 }
 
 std::string Driver::getCCodeStr() {

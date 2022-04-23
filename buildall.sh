@@ -3,7 +3,6 @@
 set -e 
 
 mkdir -p bin
-rm -rf bin/*
 
 # build wasm
 mkdir -p build && cd build
