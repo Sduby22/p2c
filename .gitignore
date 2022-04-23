@@ -3,3 +3,4 @@ build/
 /compile_commands.json
 bin/*
 !bin/libparser.d.ts
+**/.DS_Store

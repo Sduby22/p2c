@@ -1,0 +1,185 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3,
+						5
+					],
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "lib/spdlog-1.9.2",
+					"jsonFile" : "directory-lib.spdlog-1.9.2-Debug-2fb9ea9221ede9a2d77f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "lib/spdlog-1.9.2",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "lib/Catch2-2.13.8",
+					"jsonFile" : "directory-lib.Catch2-2.13.8-Debug-9325d8345b7a5985ae61.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "lib/Catch2-2.13.8"
+				},
+				{
+					"build" : "lib/cxxopts-3.0.0",
+					"childIndexes" : 
+					[
+						4
+					],
+					"jsonFile" : "directory-lib.cxxopts-3.0.0-Debug-5db75f5359ca79b999a9.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.1"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 3,
+					"source" : "lib/cxxopts-3.0.0"
+				},
+				{
+					"build" : "lib/cxxopts-3.0.0/include",
+					"jsonFile" : "directory-lib.cxxopts-3.0.0.include-Debug-a2a7dc4c622c1b0f596a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.1"
+					},
+					"parentIndex" : 3,
+					"projectIndex" : 3,
+					"source" : "lib/cxxopts-3.0.0/include"
+				},
+				{
+					"build" : "src/parser",
+					"jsonFile" : "directory-src.parser-Debug-835a6c999973ddba8433.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "src/parser",
+					"targetIndexes" : 
+					[
+						1
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3
+					],
+					"directoryIndexes" : 
+					[
+						0,
+						5
+					],
+					"name" : "p2c",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "spdlog",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						2
+					],
+					"name" : "Catch2",
+					"parentIndex" : 0
+				},
+				{
+					"directoryIndexes" : 
+					[
+						3,
+						4
+					],
+					"name" : "cxxopts",
+					"parentIndex" : 0
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "main::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-main-Debug-c71e99da93c86558a9d9.json",
+					"name" : "main",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "parser::@980325688ee7b2ed96bc",
+					"jsonFile" : "target-parser-Debug-4f6a0a1a8448b2e5e46f.json",
+					"name" : "parser",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "spdlog::@f94b7a7d5b5bcb7f0898",
+					"jsonFile" : "target-spdlog-Debug-62cf55ff724353f10ff8.json",
+					"name" : "spdlog",
+					"projectIndex" : 1
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/kino/Documents/homework/p2c/cmake-build-debug",
+		"source" : "/Users/kino/Documents/homework/p2c"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

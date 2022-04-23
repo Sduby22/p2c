@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "lib/cxxopts-3.0.0/include",
+		"source" : "lib/cxxopts-3.0.0/include"
+	}
+}

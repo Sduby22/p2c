@@ -1,0 +1,15 @@
+/Users/kino/Documents/homework/p2c/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/CMakeFiles/main.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/lib/spdlog-1.9.2/CMakeFiles/rebuild_cache.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/lib/spdlog-1.9.2/CMakeFiles/edit_cache.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/lib/spdlog-1.9.2/CMakeFiles/spdlog.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/lib/Catch2-2.13.8/CMakeFiles/rebuild_cache.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/lib/Catch2-2.13.8/CMakeFiles/edit_cache.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/lib/cxxopts-3.0.0/CMakeFiles/rebuild_cache.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/lib/cxxopts-3.0.0/CMakeFiles/edit_cache.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/lib/cxxopts-3.0.0/include/CMakeFiles/rebuild_cache.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/lib/cxxopts-3.0.0/include/CMakeFiles/edit_cache.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/src/parser/CMakeFiles/rebuild_cache.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/src/parser/CMakeFiles/edit_cache.dir
+/Users/kino/Documents/homework/p2c/cmake-build-debug/src/parser/CMakeFiles/parser.dir
