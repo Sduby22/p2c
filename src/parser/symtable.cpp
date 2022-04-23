@@ -85,7 +85,8 @@ Symbol& find_symbol(std::string name) {
       return it->get(name);
     }
   }
-  throw std::runtime_error("Symbol " + name + " not found.");
+  auto str = fmt::format("Symbol {} not found in any symbol table.", name);
+  throw std::runtime_error(str);
 }
 
 FunctionTable& function_table() {
@@ -108,7 +109,13 @@ bool FunctionTable::contains(std::string name) {
 }
 
 Function& FunctionTable::get(std::string name) {
-  return _functions.at(name);
+  auto it = _functions.find(name);
+  if (it == _functions.end()) {
+    auto str = fmt::format("Function {} not found in function table.", name);
+    logger.critical(str);
+    throw std::runtime_error(str);
+  }
+  return it->second;
 }
 
 void FunctionTable::print() {

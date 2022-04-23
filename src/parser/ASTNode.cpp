@@ -3,11 +3,15 @@
 #include "spdlog/fmt/bundled/core.h"
 #include "spdlog/fmt/fmt.h"
 #include "symtable.h"
+#include "logging.h"
 #include "types.h"
+#include <exception>
 #include <memory>
 #include <string>
 #include <variant>
 #include <vector>
+
+static auto logger = logging::getLogger("AST");
 
 namespace p2c {
 using namespace std;
@@ -288,7 +292,9 @@ string Variable::genCCode() {
     if (find_symbol(identifier).is_ref) {
       identifier = "(*" + identifier + ")";
     }
-  } catch (...) {
+  } catch (exception &e) {
+    logger.critical("{}", e.what());
+    throw e;
   }
   return identifier + _childs.front()->genCCode();
 }
@@ -305,17 +311,22 @@ string IdVarpart::genCCode() {
   if (isEmpty) {
     return "";
   }
-  vector<std::tuple<int, int>> offsets =
-      get<1>(find_symbol(dynamic_cast<Variable &>(*_parent).identifier).type)
-          .dimensions;
-  string res = "[";
-  int pos = 0;
-  for (auto &expression : _childs) {
-    string offset = " - " + to_string(get<0>(offsets[pos++]));
-    res += expression->genCCode() += offset += "][";
+  try {
+    vector<std::tuple<int, int>> offsets =
+        get<1>(find_symbol(dynamic_cast<Variable &>(*_parent).identifier).type)
+            .dimensions;
+    string res = "[";
+    int pos = 0;
+    for (auto &expression : _childs) {
+      string offset = " - " + to_string(get<0>(offsets[pos++]));
+      res += expression->genCCode() += offset += "][";
+    }
+    res.erase(res.end() - 1);
+    return res;
+  } catch (exception &e) {
+    logger.critical("{}", e.what());
+    throw e;
   }
-  res.erase(res.end() - 1);
-  return res;
 }
 
 /* statement_list node */
@@ -405,28 +416,33 @@ string Statement::genCCode() {
       if (lbracket != id.npos) { // array
         id = id.substr(0, lbracket);
       }
-      variant<BasicType, ArrayType> _type = find_symbol(id).type;
-      BasicType type;
-      if (holds_alternative<BasicType>(_type)) {
-        type = get<0>(_type);
-      } else {
-        type = get<1>(_type).basictype;
-      }
-      switch (type) {
-      case BasicType::INTEGER:
-        res += "%d ";
-        break;
-      case BasicType::REAL:
-        res += "%f ";
-        break;
-      case BasicType::BOOLEAN:
-        res += "%d ";
-        break;
-      case BasicType::CHAR:
-        res += "%c ";
-        break;
-      default:
-        break;
+      try {
+        variant<BasicType, ArrayType> _type = find_symbol(id).type;
+        BasicType type;
+        if (holds_alternative<BasicType>(_type)) {
+          type = get<0>(_type);
+        } else {
+          type = get<1>(_type).basictype;
+        }
+        switch (type) {
+        case BasicType::INTEGER:
+          res += "%d ";
+          break;
+        case BasicType::REAL:
+          res += "%f ";
+          break;
+        case BasicType::BOOLEAN:
+          res += "%d ";
+          break;
+        case BasicType::CHAR:
+          res += "%c ";
+          break;
+        default:
+          break;
+        }
+      } catch (exception &e) {
+        logger.critical("{}", e.what());
+        throw e;
       }
       _pos = pos + 1;
     }
