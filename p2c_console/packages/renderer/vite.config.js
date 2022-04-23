@@ -3,6 +3,7 @@
 import {chrome} from '../../.electron-vendors.cache.json';
 import {join} from 'path';
 import {builtinModules} from 'module';
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 import vue from '@vitejs/plugin-vue';
 
 const PACKAGE_ROOT = __dirname;
@@ -19,7 +20,15 @@ const config = {
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
     },
   },
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    viteStaticCopy({
+      targets: [{
+          src: 'src/wasm/libparser.wasm',
+          dest: '.'
+      }]
+    })
+  ],
   base: '',
   server: {
     fs: {
