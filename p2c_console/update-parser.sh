@@ -1,5 +1,5 @@
 workdir=`pwd`
-parser_root="../p2c"
+parser_root="../"
 cd $parser_root
 echo 'building p2c module'
 bash buildall.sh
