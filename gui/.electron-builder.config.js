@@ -18,6 +18,23 @@ const config = {
   extraMetadata: {
     version: process.env.VITE_APP_VERSION,
   },
+  mac: {
+    target: {
+        target: 'dmg',
+        arch: [
+          'x64',
+          'arm64',
+        ],
+    }
+  },
+  win: {
+    target: {
+      target: 'nsis',
+      arch: [
+        'x64'
+      ]
+    }
+  }
 };
 
 module.exports = config;
