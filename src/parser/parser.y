@@ -52,7 +52,7 @@
 
 /*定义driver传给parser的参数*/
 %parse-param { p2c::Scanner& scanner }
-/* %parse-param { p2c::Driver& driver } */
+%parse-param { unique_ptr<p2c::ASTNode>& rootNode }
 
 %locations
 //%define parse-trace
