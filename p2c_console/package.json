@@ -1,5 +1,5 @@
 {
-  "name": "vite-electron-builder",
+  "name": "p2c",
   "private": true,
   "engines": {
     "node": ">=v16.13",
