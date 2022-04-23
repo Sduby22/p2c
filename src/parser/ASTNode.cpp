@@ -349,6 +349,7 @@ bool Statement::find_type(string str, string &name) {
   }
   for (int pos = 0; pos < str.size(); pos++) {
     if (str[pos] == '(') {
+      if (pos == 0) return false;
       char before = str[pos - 1];
       if ((before >= 'a' && before <= 'z') ||
           (before >= 'A' && before <= 'Z') ||
