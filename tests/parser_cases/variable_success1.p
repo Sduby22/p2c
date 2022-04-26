@@ -4,5 +4,6 @@ program example(input,output);
     begin
         x1 := b;
         x2 := b;
-        y3 := x3
+        y3 := x3;
+        x4 := 123
     end.
