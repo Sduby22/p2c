@@ -1,7 +1,6 @@
 program example(input,output);
-    var vec : array[0..25] of integer;
-    var b : array[0..4][0..5] of char;
+    var vec : array[0..25] of integer; vec2 : array[0..4, 0..25] of char;
     begin
         vec[10] := 1;
-        b[0][0] := 'a'
+        vec2[0,0] := 123;
     end.
