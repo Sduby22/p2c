@@ -167,8 +167,8 @@ TEST_CASE("[parser] io")
   int result6 = !test_parse("io_failed4");
   int result7 = !test_parse("io_failed5");
   //写常量
-  // REQUIRE(result1);
-  // REQUIRE(result2);
+  REQUIRE(result1);
+  REQUIRE(result2);
   REQUIRE(!result3);
   REQUIRE(!result4);
   REQUIRE(!result5);
@@ -184,9 +184,9 @@ TEST_CASE("[parser] array")
   int result4 = !test_parse("array_failed3");
   int result5 = !test_parse("array_failed4");
   // array未完成
-  // REQUIRE(result1);
-  // REQUIRE(!result2);
-  // REQUIRE(!result3);
-  // REQUIRE(!result4);
-  // REQUIRE(!result5); 
+  REQUIRE(result1);
+  REQUIRE(!result2);
+  REQUIRE(!result3);
+  REQUIRE(!result4);
+  REQUIRE(!result5); 
 }
