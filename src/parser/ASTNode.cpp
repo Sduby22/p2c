@@ -629,13 +629,13 @@ string VarDeclaration::_infoStr() {
     switch (get<0>(type)) {
     case BasicType::INTEGER:
     case BasicType::BOOLEAN:
-      type_str = "int ";
+      type_str = "int";
       break;
     case BasicType::REAL:
-      type_str = "float ";
+      type_str = "float";
       break;
     case BasicType::CHAR:
-      type_str = "char ";
+      type_str = "char";
       break;
     default:
       break;
@@ -646,8 +646,7 @@ string VarDeclaration::_infoStr() {
   for (auto id : idlist) {
     idlist_str += (" " + id);
   }
-  return fmt::format("idlist:{}, type: {}\n", idlist_str, type_str);
-  ;
+  return fmt::format("idlist:{}, type: {}", idlist_str, type_str);
 }
 
 string VarDeclaration::genCCode() {
@@ -758,13 +757,13 @@ string Parameter::_infoStr() {
   switch (type) {
   case BasicType::INTEGER:
   case BasicType::BOOLEAN:
-    type_str = "int ";
+    type_str = "int";
     break;
   case BasicType::REAL:
-    type_str = "float ";
+    type_str = "float";
     break;
   case BasicType::CHAR:
-    type_str = "char ";
+    type_str = "char";
     break;
   default:
     break;
@@ -772,7 +771,7 @@ string Parameter::_infoStr() {
   for (auto id : idlist) {
     idlist_str += (" " + id);
   }
-  return fmt::format("parameter_type: {}, idlist:{}, type: {}\n", para_type,
+  return fmt::format("parameter_type: {}, idlist:{}, type: {}", para_type,
                      idlist_str, type_str);
 }
 
@@ -851,7 +850,7 @@ string SubprogramHead::_infoStr() {
   } else {
     returnType_str = "void";
   }
-  return fmt::format("func_id: {}, return_type: {}\n", funcId, returnType_str);
+  return fmt::format("func_id: {}, return_type: {}", funcId, returnType_str);
 }
 
 string SubprogramHead::genCCode() {
@@ -902,7 +901,7 @@ string Subprogram::_infoStr() { return ""; }
 string Subprogram::genCCode() {
   string res = "";
   res += (_childs.at(0)->genCCode() + " {\n");
-  res += (_childs.at(1)->genCCode() + "}\n// over");
+  res += (_childs.at(1)->genCCode() + "}\n");
   return (res);
 }
 
