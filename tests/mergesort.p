@@ -2,6 +2,7 @@ program mergesort(input, output);
 
 const
     n = 10;
+    delimit = ' ';
 
 var
     mas: array [1..10] of integer;
@@ -44,5 +45,8 @@ begin
         read(mas[i]);
     MergeSort(1, n);
     for i := 1 to n do
+    begin
+        write(delimit);
         write(mas[i]);
+    end
 end.
