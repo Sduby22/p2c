@@ -11,12 +11,8 @@ Driver::~Driver() {}
 
 int Driver::parse(std::istream &is, std::ostream &os) {
   _scanner.switch_streams(is, os);
-  try {
-    int res = _parser.parse();
-    return res;
-  } catch(...) {
-    return 1;
-  }
+  int res = _parser.parse();
+  return res;
 }
 
 std::string Driver::getCCodeStr() {

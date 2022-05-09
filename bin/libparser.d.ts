@@ -2,6 +2,7 @@ export class ParseResult {
     success: boolean;
     c_code: string;
     syntax_tree: string;
+    message: string;
 }
 
 export interface ParserMoudle {

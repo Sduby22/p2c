@@ -3,11 +3,15 @@
 #include "spdlog/fmt/bundled/core.h"
 #include "spdlog/fmt/fmt.h"
 #include "symtable.h"
+#include "logging.h"
 #include "types.h"
+#include <exception>
 #include <memory>
 #include <string>
 #include <variant>
 #include <vector>
+
+static auto logger = logging::getLogger("AST");
 
 namespace p2c {
 using namespace std;
@@ -288,7 +292,9 @@ string Variable::genCCode() {
     if (find_symbol(identifier).is_ref) {
       identifier = "(*" + identifier + ")";
     }
-  } catch (...) {
+  } catch (exception &e) {
+    logger.critical("{}", e.what());
+    throw e;
   }
   return identifier + _childs.front()->genCCode();
 }
@@ -305,17 +311,22 @@ string IdVarpart::genCCode() {
   if (isEmpty) {
     return "";
   }
-  vector<std::tuple<int, int>> offsets =
-      get<1>(find_symbol(dynamic_cast<Variable &>(*_parent).identifier).type)
-          .dimensions;
-  string res = "[";
-  int pos = 0;
-  for (auto &expression : _childs) {
-    string offset = " - " + to_string(get<0>(offsets[pos++]));
-    res += expression->genCCode() += offset += "][";
+  try {
+    vector<std::tuple<int, int>> offsets =
+        get<1>(find_symbol(dynamic_cast<Variable &>(*_parent).identifier).type)
+            .dimensions;
+    string res = "[";
+    int pos = 0;
+    for (auto &expression : _childs) {
+      string offset = " - " + to_string(get<0>(offsets[pos++]));
+      res += expression->genCCode() += offset += "][";
+    }
+    res.erase(res.end() - 1);
+    return res;
+  } catch (exception &e) {
+    logger.critical("{}", e.what());
+    throw e;
   }
-  res.erase(res.end() - 1);
-  return res;
 }
 
 /* statement_list node */
@@ -331,7 +342,7 @@ string StatementList::genCCode() {
   for (auto &statement : _childs) {
     res += statement->genCCode();
   }
-  return res + "\n";
+  return res;
 }
 
 /* statement node */
@@ -349,6 +360,7 @@ bool Statement::find_type(string str, string &name) {
   }
   for (int pos = 0; pos < str.size(); pos++) {
     if (str[pos] == '(') {
+      if (pos == 0) return false;
       char before = str[pos - 1];
       if ((before >= 'a' && before <= 'z') ||
           (before >= 'A' && before <= 'Z') ||
@@ -383,7 +395,7 @@ string Statement::genCCode() {
   case 6: // FOR IDENTIFIER ASSIGN expression TO expression DO statement
     return "for (" + type_info + " = " + _childs[0]->genCCode() + "; " +
            type_info + " <= " + _childs[1]->genCCode() + "; " + type_info +
-           "++) {\n" + _childs[2]->genCCode() + "\n}\n";
+           "++) {\n" + _childs[2]->genCCode() + "}\n";
   case 7: // READ LBRACKET variable_list RBRACKET
   {
     string res = "";
@@ -404,28 +416,33 @@ string Statement::genCCode() {
       if (lbracket != id.npos) { // array
         id = id.substr(0, lbracket);
       }
-      variant<BasicType, ArrayType> _type = find_symbol(id).type;
-      BasicType type;
-      if (holds_alternative<BasicType>(_type)) {
-        type = get<0>(_type);
-      } else {
-        type = get<1>(_type).basictype;
-      }
-      switch (type) {
-      case BasicType::INTEGER:
-        res += "%d ";
-        break;
-      case BasicType::REAL:
-        res += "%f ";
-        break;
-      case BasicType::BOOLEAN:
-        res += "%d ";
-        break;
-      case BasicType::CHAR:
-        res += "%c ";
-        break;
-      default:
-        break;
+      try {
+        variant<BasicType, ArrayType> _type = find_symbol(id).type;
+        BasicType type;
+        if (holds_alternative<BasicType>(_type)) {
+          type = get<0>(_type);
+        } else {
+          type = get<1>(_type).basictype;
+        }
+        switch (type) {
+        case BasicType::INTEGER:
+          res += "%d ";
+          break;
+        case BasicType::REAL:
+          res += "%f ";
+          break;
+        case BasicType::BOOLEAN:
+          res += "%d ";
+          break;
+        case BasicType::CHAR:
+          res += "%c ";
+          break;
+        default:
+          break;
+        }
+      } catch (exception &e) {
+        logger.critical("{}", e.what());
+        throw e;
       }
       _pos = pos + 1;
     }
@@ -540,7 +557,7 @@ const string &CompoundStatement::_getName() {
 string CompoundStatement::_infoStr() { return ""; }
 
 string CompoundStatement::genCCode() {
-  return "{\n" + _childs.front()->genCCode() + "\n}\n";
+  return _childs.front()->genCCode();
 }
 
 /* const_declaration node */
@@ -612,13 +629,13 @@ string VarDeclaration::_infoStr() {
     switch (get<0>(type)) {
     case BasicType::INTEGER:
     case BasicType::BOOLEAN:
-      type_str = "int ";
+      type_str = "int";
       break;
     case BasicType::REAL:
-      type_str = "float ";
+      type_str = "float";
       break;
     case BasicType::CHAR:
-      type_str = "char ";
+      type_str = "char";
       break;
     default:
       break;
@@ -629,8 +646,7 @@ string VarDeclaration::_infoStr() {
   for (auto id : idlist) {
     idlist_str += (" " + id);
   }
-  return fmt::format("idlist:{}, type: {}\n", idlist_str, type_str);
-  ;
+  return fmt::format("idlist:{}, type: {}", idlist_str, type_str);
 }
 
 string VarDeclaration::genCCode() {
@@ -741,13 +757,13 @@ string Parameter::_infoStr() {
   switch (type) {
   case BasicType::INTEGER:
   case BasicType::BOOLEAN:
-    type_str = "int ";
+    type_str = "int";
     break;
   case BasicType::REAL:
-    type_str = "float ";
+    type_str = "float";
     break;
   case BasicType::CHAR:
-    type_str = "char ";
+    type_str = "char";
     break;
   default:
     break;
@@ -755,7 +771,7 @@ string Parameter::_infoStr() {
   for (auto id : idlist) {
     idlist_str += (" " + id);
   }
-  return fmt::format("parameter_type: {}, idlist:{}, type: {}\n", para_type,
+  return fmt::format("parameter_type: {}, idlist:{}, type: {}", para_type,
                      idlist_str, type_str);
 }
 
@@ -834,7 +850,7 @@ string SubprogramHead::_infoStr() {
   } else {
     returnType_str = "void";
   }
-  return fmt::format("func_id: {}, return_type: {}\n", funcId, returnType_str);
+  return fmt::format("func_id: {}, return_type: {}", funcId, returnType_str);
 }
 
 string SubprogramHead::genCCode() {
@@ -885,8 +901,8 @@ string Subprogram::_infoStr() { return ""; }
 string Subprogram::genCCode() {
   string res = "";
   res += (_childs.at(0)->genCCode() + " {\n");
-  res += (_childs.at(1)->genCCode() + " }\n");
-  return (res + "\n");
+  res += (_childs.at(1)->genCCode() + "}\n");
+  return (res);
 }
 
 /* subprogram_declarations node */
@@ -904,7 +920,7 @@ string SubprogramDeclarations::_infoStr() {
 }
 
 string SubprogramDeclarations::genCCode() {
-  string res = "";
+  string res;
   for (auto &child : _childs) {
     res += child->genCCode();
   }
@@ -917,7 +933,7 @@ std::string ProgramDecl::genCCode() {
   for (int i = 0; i != _childs.size(); ++i) {
     auto &child = _childs[i];
     if (i == _childs.size() - 1)
-      res += fmt::format("int main() {}", child->genCCode());
+      res += fmt::format("int main() {{\n{}}}", child->genCCode());
     else
       res += child->genCCode();
     res.push_back('\n');

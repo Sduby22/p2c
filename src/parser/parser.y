@@ -356,7 +356,9 @@ statement_list:
   statement_list SEMICOLON statement
                 {
                   $$ = std::move($1);
-                  $$->appendChild(std::move($3));
+                  if ($3->type != 10) {
+                    $$->appendChild(std::move($3));
+                  }
                 }
   | statement
                 {
