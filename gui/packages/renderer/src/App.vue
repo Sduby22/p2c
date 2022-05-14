@@ -1,4 +1,6 @@
 <template>
+  <button @click="openFile">open</button>
+  <button @click="saveFile">save</button>
   <div class="flex-container">
     <el-row class="editor">
       <el-col 
@@ -147,6 +149,32 @@ function translate(pas: string) {
   output.value = res.message;
   hasError.value = res.success;
   return res;
+}
+
+function openFile() {
+  window.files.open({
+    properties: ['openFile'],
+    filters: [
+      {
+        name: 'Pascal',
+        extensions: ['pas', 'p'],
+      },
+    ],
+  }).then(res => {
+    pascalCode.value = res
+  });
+}
+
+function saveFile() {
+  window.files.save(cCode.value, {
+    defaultPath: 'a.c',
+    filters: [
+      {
+        name: 'C',
+        extensions: ['c'],
+      },
+    ],
+  })
 }
 </script>
 
