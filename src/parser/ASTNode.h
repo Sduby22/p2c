@@ -16,6 +16,7 @@ public:
 
   virtual std::string printNode();
   virtual std::string genCCode() = 0;
+  virtual std::string _genCCode(int level);
   virtual void _printNode(int level, std::string &str);
   void appendChild(std::unique_ptr<ASTNode> child);
 
@@ -122,6 +123,7 @@ class StatementList: public ASTNode {
 public:
   vector<string>statement_list;
   virtual std::string genCCode();
+  virtual std::string _genCCode(int level);
 
 private:
   virtual const std::string &_getName();
@@ -136,6 +138,7 @@ public:
   string type_name;
   string type_info;
   virtual std::string genCCode();
+  virtual std::string _genCCode(int level);
 
 private:
   virtual const std::string &_getName();
@@ -161,6 +164,7 @@ private:
 class CompoundStatement  : public ASTNode {
 public:
   virtual std::string genCCode();
+  virtual std::string _genCCode(int level);
 
 private:
   virtual const std::string &_getName();
@@ -186,6 +190,7 @@ class ConstDeclarations : public ASTNode {
 public:
   bool isEmpty;
   virtual std::string genCCode();
+  virtual std::string _genCCode(int level);
 
 private:
   virtual const std::string &_getName();
@@ -211,6 +216,7 @@ class VarDeclarations : public ASTNode {
 public:
   bool isEmpty;
   virtual std::string genCCode();
+  virtual std::string _genCCode(int level);
 
 private:
   virtual const std::string &_getName();
@@ -222,6 +228,7 @@ private:
 class SubprogramBody : public ASTNode {
 public:
   virtual std::string genCCode();
+  virtual std::string _genCCode(int level);
 
 private:
   virtual const std::string &_getName();
@@ -273,6 +280,7 @@ private:
 class Subprogram : public ASTNode {
 public:
   virtual std::string genCCode();
+  virtual std::string _genCCode(int level);
 
 private:
   virtual const std::string &_getName();
@@ -285,6 +293,7 @@ class SubprogramDeclarations : public ASTNode {
 public:
   bool isEmpty;
   virtual std::string genCCode();
+  virtual std::string _genCCode(int level);
 
 private:
   virtual const std::string &_getName();
@@ -294,6 +303,7 @@ private:
 class ProgramDecl : public ASTNode {
 public:
   virtual std::string genCCode();
+  virtual std::string _genCCode(int level);
   std::string name;
 
 private:
