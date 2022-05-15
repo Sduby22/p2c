@@ -1,6 +1,4 @@
 <template>
-  <button @click="openFile">open</button>
-  <button @click="saveFile">save</button>
   <div class="flex-container">
     <el-row class="editor">
       <el-col 
@@ -32,6 +30,26 @@
               label="Auto"
               size="large"
             />
+            <div style="margin-bottom: 10px;">
+              <el-button
+                type="primary"
+                text
+                bg
+                @click="openFile"
+              >
+                Load
+              </el-button>
+            </div>
+            <div>
+              <el-button
+                type="primary"
+                text
+                bg
+                @click="saveFile"
+              >
+                Save
+              </el-button>
+            </div>
           </div>
         </div>
       </el-col>
@@ -39,9 +57,21 @@
         class="editor-col"
         :span="11"
       >
-        <p>C Code (Read-only)</p>
+        <div style="position: relative;">
+          <p>C Code (Read-only)</p>
+          <div class="syntax-tree-code-switch">
+            <el-button
+              type="primary"
+              text
+              bg
+              @click="switchSyntaxTree"
+            >
+              {{ showSyntaxTree ? 'C Code' : 'Syntax Tree' }}
+            </el-button>
+          </div>
+        </div>
         <v-ace-editor
-          v-model:value="cCode"
+          v-model:value="outputCode"
           class="editor-part"
           lang="c_cpp"
           theme="chrome"
@@ -82,7 +112,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { VAceEditor } from 'vue3-ace-editor';
 import 'ace-builds/src-noconflict/mode-c_cpp';
 import 'ace-builds/src-noconflict/mode-pascal';
@@ -94,10 +124,19 @@ import { Md5 } from 'ts-md5';
 
 const pascalCode = ref('');
 const cCode = ref('');
+const syntaxTree = ref('');
+const outputCode = computed(() => {
+  if (showSyntaxTree.value) {
+    return syntaxTree.value;
+  } else {
+    return cCode.value;
+  }
+});
 const loading = ref(false);
 const autoCompile = ref(true);
 const hasError = ref(false);
 const output = ref('');
+const showSyntaxTree = ref(false);
 
 let lastHash = '';
 
@@ -122,6 +161,7 @@ function compile() {
   } else {
     ElMessage.success('Succeed.');
     cCode.value = result.c_code;
+    syntaxTree.value = result.syntax_tree;
   }
   loading.value = false;
 }
@@ -141,6 +181,7 @@ function update() {
     return;
   }
   cCode.value = result.c_code;
+  syntaxTree.value = result.syntax_tree;
 }
 
 function translate(pas: string) {
@@ -161,7 +202,7 @@ function openFile() {
       },
     ],
   }).then(res => {
-    pascalCode.value = res
+    pascalCode.value = res;
   });
 }
 
@@ -174,7 +215,11 @@ function saveFile() {
         extensions: ['c'],
       },
     ],
-  })
+  });
+}
+
+function switchSyntaxTree() {
+  showSyntaxTree.value = !showSyntaxTree.value;
 }
 </script>
 
@@ -248,5 +293,14 @@ html, body {
   display: flex;
   align-items: center;
   margin-left: 20px;
+}
+.syntax-tree-code-switch {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  top: 0;
+  right: 0;
 }
 </style>
