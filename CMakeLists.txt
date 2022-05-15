@@ -41,3 +41,16 @@ if (BUILD_TESTING)
 endif()
 # add_test(NAME Catch2.Test
 #   COMMAND test_main)
+
+# ========= Doxygen ========
+option(BUILD_DOC "Build Doxygen" OFF)
+find_package(
+  Doxygen
+  OPTIONAL_COMPONENTS mscgen dia dot
+)
+
+if(BUILD_DOC AND DOXYGEN_FOUND)
+  add_subdirectory(doc)
+else()
+  message("Needs doxygen installed to generate documentation")
+endif()
