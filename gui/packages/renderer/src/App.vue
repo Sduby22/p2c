@@ -1,6 +1,4 @@
 <template>
-  <button @click="openFile">open</button>
-  <button @click="saveFile">save</button>
   <div class="flex-container">
     <el-row class="editor">
       <el-col 
@@ -32,6 +30,26 @@
               label="Auto"
               size="large"
             />
+            <div style="margin-bottom: 10px;">
+              <el-button
+                type="primary"
+                text
+                bg
+                @click="openFile"
+              >
+                Load
+              </el-button>
+            </div>
+            <div>
+              <el-button
+                type="primary"
+                text
+                bg
+                @click="saveFile"
+              >
+                Save
+              </el-button>
+            </div>
           </div>
         </div>
       </el-col>
@@ -161,7 +179,7 @@ function openFile() {
       },
     ],
   }).then(res => {
-    pascalCode.value = res
+    pascalCode.value = res;
   });
 }
 
@@ -174,7 +192,7 @@ function saveFile() {
         extensions: ['c'],
       },
     ],
-  })
+  });
 }
 </script>
 
