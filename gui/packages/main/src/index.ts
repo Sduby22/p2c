@@ -1,7 +1,26 @@
-import {app} from 'electron';
+import {app, dialog, ipcMain} from 'electron';
+import { fstat } from 'original-fs';
 import './security-restrictions';
 import {restoreOrCreateWindow} from '/@/mainWindow';
 
+import * as fs from 'fs'
+import * as chardet from 'chardet'
+
+ipcMain.handle('open-file-dialog', (event, options) => {
+  const files = dialog.showOpenDialogSync(options);
+  if (files) {
+    const buf = fs.readFileSync(files[0], {encoding: 'utf8'});
+    if (buf) return buf
+  }
+  return undefined
+})
+
+ipcMain.handle('save-file-dialog', (event, str: string, options) => {
+  const file = dialog.showSaveDialogSync(options);
+  if (file) {
+    fs.writeFileSync(file, str);
+  }
+})
 
 /**
  * Prevent multiple instances

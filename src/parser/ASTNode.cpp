@@ -34,6 +34,15 @@ void ASTNode::_printNode(int level, string &str) {
   }
 }
 
+std::string ASTNode::_genCCode(int level) {
+  string indent(level * 4, ' ');
+  string res = "";
+  for (auto &child : _childs) {
+    res += indent + child->_genCCode(level + 1);
+  }
+  return res;
+}
+
 const string &ASTNode::_getName() {
   static string name = "ASTNode";
   return name;
@@ -337,6 +346,14 @@ const string &StatementList::_getName() {
 
 string StatementList::_infoStr() { return ""; }
 
+string StatementList::_genCCode(int level) {
+  string res;
+  for (auto &statement : _childs) {
+    res += statement->_genCCode(level);
+  }
+  return res;
+}
+
 string StatementList::genCCode() {
   string res;
   for (auto &statement : _childs) {
@@ -510,6 +527,144 @@ string Statement::genCCode() {
   }
 }
 
+string Statement::_genCCode(int level) {
+  string indent(level * 4, ' ');
+  switch (type) {
+  case 1: // variable ASSIGN expression
+    if (dynamic_cast<Variable &>(*_childs.front()).identifier ==
+        current_symbol_table().name) {
+      return indent + "return " + _childs.back()->genCCode() + ";\n";
+    }
+    return indent + _childs.front()->genCCode() + " = " + _childs.back()->genCCode() +
+           ";\n";
+  case 2: // procedure_call
+    return indent + _childs.front()->genCCode() + ";\n";
+  case 3: // compound_statement
+    return _childs.front()->_genCCode(level);
+  case 4: // IF expression THEN statement ELSE statement
+    return indent + "if (" + _childs[0]->genCCode() + ") {\n" + _childs[1]->_genCCode(level + 1) + indent + 
+           "} else {\n" + _childs[2]->_genCCode(level + 1) + indent + "}\n";
+  case 5: // IF expression THEN statement
+    return indent + "if (" + _childs[0]->genCCode() + ") {\n" + _childs[1]->_genCCode(level + 1) + indent + 
+           "}\n";
+  case 6: // FOR IDENTIFIER ASSIGN expression TO expression DO statement
+    return indent + "for (" + type_info + " = " + _childs[0]->genCCode() + "; " +
+           type_info + " <= " + _childs[1]->genCCode() + "; " + type_info +
+           "++) {\n" + _childs[2]->_genCCode(level+1) + indent + "}\n";
+  case 7: // READ LBRACKET variable_list RBRACKET
+  {
+    string res = "";
+    string var_list = _childs.front()->genCCode();
+    int _pos = 1, pos = 0;
+    var_list.insert(pos++, "&");
+    while (pos < var_list.size()) {
+      pos = var_list.find(", ", pos);
+      if (pos < var_list.size()) {
+        pos += 2;
+        var_list.insert(pos, "&");
+      }
+      string id = var_list.substr(_pos, pos - 2 - _pos);
+      if (id.substr(0, 2) == "(*") {
+        id = id.substr(2, id.size() - 3);
+      }
+      int lbracket = id.find('[');
+      if (lbracket != id.npos) { // array
+        id = id.substr(0, lbracket);
+      }
+      try {
+        variant<BasicType, ArrayType> _type = find_symbol(id).type;
+        BasicType type;
+        if (holds_alternative<BasicType>(_type)) {
+          type = get<0>(_type);
+        } else {
+          type = get<1>(_type).basictype;
+        }
+        switch (type) {
+        case BasicType::INTEGER:
+          res += "%d ";
+          break;
+        case BasicType::REAL:
+          res += "%f ";
+          break;
+        case BasicType::BOOLEAN:
+          res += "%d ";
+          break;
+        case BasicType::CHAR:
+          res += "%c ";
+          break;
+        default:
+          break;
+        }
+      } catch (exception &e) {
+        logger.critical("{}", e.what());
+        throw e;
+      }
+      _pos = pos + 1;
+    }
+    res.erase(res.end() - 1);
+    res = fmt::format("scanf(\"{}\", {});\n", res, var_list);
+    return indent + res;
+  }
+  case 8: // WRITE LBRACKET expression_list RBRACKET
+  {
+    string res = "";
+    string var_list = "";
+    for (auto &expression : _childs) {
+      string exp = expression->genCCode();
+      var_list += exp + ", ";
+      if (exp.substr(0, 2) == "(*" && exp.find(')', 3) == exp.size() - 1) {
+        exp = exp.substr(2, exp.size() - 3);
+      }
+      variant<BasicType, ArrayType> _type;
+      BasicType type;
+      string func_name = "";
+      if (find_type(exp, func_name)) { // function
+        type = find_function(func_name).return_type;
+      } else { // symbol
+        int lbracket = exp.find('[');
+        if (lbracket != exp.npos) { // array
+          exp = exp.substr(0, lbracket);
+        }
+        try {
+          _type = find_symbol(exp).type;
+          if (holds_alternative<BasicType>(_type)) {
+            type = get<0>(_type);
+          } else {
+            type = get<1>(_type).basictype;
+          }
+        } catch (...) {
+          type = BasicType::INTEGER; // ******
+        }
+      }
+      switch (type) {
+      case BasicType::INTEGER:
+        res += "%d ";
+        break;
+      case BasicType::REAL:
+        res += "%f ";
+        break;
+      case BasicType::BOOLEAN:
+        res += "%d ";
+        break;
+      case BasicType::CHAR:
+        res += "%c ";
+        break;
+      default:
+        break;
+      }
+    }
+    res.erase(res.end() - 1);
+    var_list.erase(var_list.end() - 2, var_list.end());
+    res = fmt::format("printf(\"{}\", {});\n", res, var_list);
+    return indent + res;
+  }
+  case 9:
+    return indent + "return;\n";
+  default: // case 10: empty
+    return indent;
+  }
+}
+
 /* procedure_call  node */
 const string &ProcedureCall::_getName() {
   static string name = "ProcedureCall";
@@ -555,6 +710,10 @@ const string &CompoundStatement::_getName() {
 }
 
 string CompoundStatement::_infoStr() { return ""; }
+
+string CompoundStatement::_genCCode(int level) {
+  return _childs.front()->_genCCode(level);
+}
 
 string CompoundStatement::genCCode() {
   return _childs.front()->genCCode();
@@ -608,6 +767,15 @@ string ConstDeclarations::_infoStr() {
     return "";
   }
 }
+
+string ConstDeclarations::_genCCode(int level) {
+  string indent(level * 4, ' ');
+  string res;
+  for (auto &constdeclaration : _childs) {
+    res += (indent + constdeclaration->genCCode());
+  }
+  return res;
+} 
 
 string ConstDeclarations::genCCode() {
   string res;
@@ -715,6 +883,15 @@ string VarDeclarations::_infoStr() {
   }
 }
 
+string VarDeclarations::_genCCode(int level) {
+  string indent(level * 4, ' ');
+  string res;
+  for (auto &constdeclaration : _childs) {
+    res += indent + constdeclaration->genCCode();
+  }
+  return res;
+} 
+
 string VarDeclarations::genCCode() {
   string res;
   for (auto &vardeclaration : _childs) {
@@ -730,6 +907,16 @@ const string &SubprogramBody::_getName() {
 }
 
 string SubprogramBody::_infoStr() { return ""; }
+
+string SubprogramBody::_genCCode(int level) {
+  string res;
+  for (auto &child : _childs) {
+    res += child->_genCCode(level);
+  }
+  current_symbol_table().print();
+  pop_symbol_table();
+  return res;
+}
 
 string SubprogramBody::genCCode() {
   string res;
@@ -898,6 +1085,13 @@ const string &Subprogram::_getName() {
 
 string Subprogram::_infoStr() { return ""; }
 
+string Subprogram::_genCCode(int level) {
+  string res = "";
+  res += (_childs.at(0)->genCCode() + " {\n");
+  res += (_childs.at(1)->_genCCode(level + 1) + "}\n");
+  return (res);
+}
+
 string Subprogram::genCCode() {
   string res = "";
   res += (_childs.at(0)->genCCode() + " {\n");
@@ -919,6 +1113,15 @@ string SubprogramDeclarations::_infoStr() {
   }
 }
 
+string SubprogramDeclarations::_genCCode(int level) {
+  string res;
+  for (auto &child : _childs) {
+    res += child->_genCCode(level);
+  }
+  function_table().print();
+  return (res + "\n");
+}
+
 string SubprogramDeclarations::genCCode() {
   string res;
   for (auto &child : _childs) {
@@ -929,13 +1132,17 @@ string SubprogramDeclarations::genCCode() {
 }
 
 std::string ProgramDecl::genCCode() {
+  return _genCCode(-1);
+}
+
+std::string ProgramDecl::_genCCode(int level) {
   std::string res = "#include <stdio.h>\n";
   for (int i = 0; i != _childs.size(); ++i) {
     auto &child = _childs[i];
     if (i == _childs.size() - 1)
-      res += fmt::format("int main() {{\n{}}}", child->genCCode());
+      res += fmt::format("int main() {{\n{}}}", child->_genCCode(level + 2));
     else
-      res += child->genCCode();
+      res += child->_genCCode(level + 1);
     res.push_back('\n');
   }
   current_symbol_table().print();

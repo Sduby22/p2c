@@ -11,7 +11,8 @@
   #include "logging.h"
 
   static auto logger = logging::getLogger("Lexer");
-  static p2c::location loc;//声明位置实例
+  p2c::location loc;//声明位置实例
+
   /* 定义了YY_USER_ACTION，该宏在每个记号的语义动作之前被调用，来根据记号的长度设置位置的信息 */
   #define YY_USER_ACTION  loc.columns (yyleng); 
 
