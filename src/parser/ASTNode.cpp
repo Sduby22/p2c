@@ -540,7 +540,7 @@ string Statement::_genCCode(int level) {
   case 2: // procedure_call
     return indent + _childs.front()->genCCode() + ";\n";
   case 3: // compound_statement
-    return _childs.front()->_genCCode(level + 1);
+    return _childs.front()->_genCCode(level);
   case 4: // IF expression THEN statement ELSE statement
     return indent + "if (" + _childs[0]->genCCode() + ") {\n" + _childs[1]->_genCCode(level + 1) + indent + 
            "} else {\n" + _childs[2]->_genCCode(level + 1) + indent + "}\n";
@@ -550,7 +550,7 @@ string Statement::_genCCode(int level) {
   case 6: // FOR IDENTIFIER ASSIGN expression TO expression DO statement
     return indent + "for (" + type_info + " = " + _childs[0]->genCCode() + "; " +
            type_info + " <= " + _childs[1]->genCCode() + "; " + type_info +
-           "++) {\n" + _childs[2]->_genCCode(level) + indent + "}\n";
+           "++) {\n" + _childs[2]->_genCCode(level+1) + indent + "}\n";
   case 7: // READ LBRACKET variable_list RBRACKET
   {
     string res = "";
