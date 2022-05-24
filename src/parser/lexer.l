@@ -119,7 +119,7 @@ illegal_letter          .
 %}
 
 {wrong_identifier} {
-  logger.error("at line {} column {}: illegal identifier {}", loc.begin.line, loc.begin.column, yytext);
+  logger.warn("at line {} column {}: illegal identifier {}", loc.begin.line, loc.begin.column, yytext);
   loc.step(); 
 }
 
@@ -409,7 +409,7 @@ illegal_letter          .
 <<EOF>>   { return yyterminate(); }
 
 {illegal_letter} {
-  logger.error("Illegal character {}", *yytext);
+  logger.warn("at line {} column {}: illegal character {}", loc.begin.line, loc.begin.column, yytext);
   loc.step();
 }
 
