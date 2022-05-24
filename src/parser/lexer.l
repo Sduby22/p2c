@@ -45,7 +45,6 @@ comment                 (\/\/[^\n]*)|(\{[^}\n]*\})
 noquote                 [^'^\n]
 charac                  ['].[']
 wrong_identifier        {digits}+({letter})({digits}|{letter})*
-quotation_not_match     (\'|\")
 whitespace              [\s\t ]
 newline                 \r\n|\n\r|\n|\r
 
@@ -120,11 +119,8 @@ illegal_letter          .
 %}
 
 {wrong_identifier} {
+  logger.error("at line {} column {}: illegal identifier {}", loc.begin.line, loc.begin.column, yytext);
   loc.step(); 
-}
-
-{quotation_not_match} {
-  loc.step();
 }
 
 {whitespace}|{comment} {
